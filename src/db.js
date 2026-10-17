@@ -6,13 +6,15 @@ export function createDb(d1) {
   const all = async (sql, ...a) => (await d1.prepare(sql).bind(...a).all()).results;
 
   /** INSERT de muchas filas en una sola consulta (como mucho 99 parámetros por consulta en D1). */
-  async function insertMany(prefix, rows) {
+  // D1 cobra cada fila escrita (100.000 al día gratis): solo se escribe la clave si el valor cambia.
+  const KV_UPSERT = ' ON CONFLICT(k) DO UPDATE SET v = excluded.v WHERE kv.v IS NOT excluded.v';
+  async function insertMany(prefix, rows, tail = '') {
     if (!rows.length) return;
     const per = rows[0].length;
     const chunk = Math.max(1, Math.floor(99 / per));
     for (let i = 0; i < rows.length; i += chunk) {
       const part = rows.slice(i, i + chunk);
-      await run(`${prefix} ${part.map(() => `(${Array(per).fill('?').join(', ')})`).join(', ')}`, ...part.flat());
+      await run(`${prefix} ${part.map(() => `(${Array(per).fill('?').join(', ')})`).join(', ')}${tail}`, ...part.flat());
     }
   }
   async function deleteIn(table, ids) {
@@ -70,12 +72,12 @@ export function createDb(d1) {
     deleteAlerts: (ids) => deleteIn('alerts', ids),
 
     kvGet: async (k) => (await first('SELECT v FROM kv WHERE k = ?', k))?.v ?? null,
-    kvSet: (k, v) => run('INSERT OR REPLACE INTO kv (k, v) VALUES (?, ?)', k, String(v)),
+    kvSet: (k, v) => run(`INSERT INTO kv (k, v) VALUES (?, ?)${KV_UPSERT}`, k, String(v)),
     kvPrefix: (prefix) => all('SELECT k, v FROM kv WHERE k LIKE ? ORDER BY k', `${prefix}%`),
     async kvAll() {
       return new Map((await all('SELECT k, v FROM kv WHERE k NOT LIKE ? AND k NOT LIKE ?', 'opinion:%', 'opinando:%')).map((r) => [r.k, r.v]));
     },
-    kvSetMany: (entries) => insertMany('INSERT OR REPLACE INTO kv (k, v) VALUES', entries.map(([k, v]) => [k, String(v)])),
+    kvSetMany: (entries) => insertMany('INSERT INTO kv (k, v) VALUES', entries.map(([k, v]) => [k, String(v)]), KV_UPSERT),
 
     enqueueMany: (msgs, now) => insertMany('INSERT INTO outbox (chat_id, text, created_at) VALUES', msgs.map(([id, text]) => [id, text, now])),
     peekOutbox: (n) => all('SELECT * FROM outbox ORDER BY id LIMIT ?', n),

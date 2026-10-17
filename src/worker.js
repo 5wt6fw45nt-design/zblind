@@ -36,7 +36,7 @@ export default {
     if (url.pathname === '/tick' && req.method === 'POST') {
       if (!env.RELOJ_SECRET || req.headers.get('x-reloj-secret') !== env.RELOJ_SECRET) return new Response('forbidden', { status: 403 });
       const { cfg, db, api, engine } = build(env);
-      await db.kvSet('last_tick', Date.now());
+      await db.kvSet('last_tick', Math.floor(Date.now() / 600_000) * 600_000); // a 10 min: una escritura cada 10 min, no cada minuto
       const used = await engine.tick(Date.now());
       const sent = await drainOutbox(api, db, cfg.subrequestBudget - used);
       return Response.json({ used, sent });
