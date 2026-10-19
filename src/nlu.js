@@ -20,6 +20,19 @@ export function parseNumber(str) {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+// «¿y en pesos mexicanos?», «precio en dólares», «en soles»: la moneda que piden (todas las da Coinbase)
+const CURRENCIES = [
+  [/\b(pesos? mexicanos?|mxn)\b/, 'MXN', 'pesos mexicanos'], [/\b(pesos? argentinos?|ars)\b/, 'ARS', 'pesos argentinos'],
+  [/\b(pesos? colombianos?|cop)\b/, 'COP', 'pesos colombianos'], [/\b(pesos? chilenos?|clp)\b/, 'CLP', 'pesos chilenos'],
+  [/\b(pesos? uruguayos?|uyu)\b/, 'UYU', 'pesos uruguayos'], [/\b(pesos? dominicanos?|dop)\b/, 'DOP', 'pesos dominicanos'],
+  [/\b(soles?|pen)\b/, 'PEN', 'soles'], [/\b(bolivares?|ves)\b/, 'VES', 'bolívares'],
+  [/\b(euros?|eur)\b/, 'EUR', 'euros'], [/\b(dolares?|usd)\b/, 'USD', 'dólares'], [/\b(libras?|gbp)\b/, 'GBP', 'libras'],
+];
+export function currencyIn(t) {
+  const c = CURRENCIES.find(([re]) => re.test(t));
+  return c ? { currency: c[1], currencyName: c[2] } : null;
+}
+
 const assetIn = (t) => (/\b(bitcoin|btc)\b/.test(t) ? 'BTC' : 'ZEC');
 const SMALLTALK = /^((ja|je|ji)+|gracias|vale|ok|okey|perfecto|genial|guay|bien|bueno|si|no|adios|chao|top|crack)$/;
 
@@ -41,8 +54,14 @@ export function quickIntent(text) {
   }
   if (/^(alerta|alertas|avisame|poner alerta|crear alerta)$/.test(t)) return { intent: 'alert_help' };
   if (/\b(grafico|grafica|chart)\b/.test(t)) return { intent: 'chart', asset: assetIn(t) };
+  // Precio en otra moneda: «¿y en pesos mexicanos?», «¿cuánto es en dólares?»
+  const cur = t.length < 60 && /\ben\b/.test(t) && !/\b(pasa|baja|sube|cae|avisa)/.test(t) ? currencyIn(t) : null;
+  if (cur && /^(y |precio|cuanto|a cuanto|cotizacion|zcash|zec|bitcoin|btc|en )/.test(t)) return { intent: 'price', asset: assetIn(t), ...cur };
+  // Comprar o conseguir ZEC: la lección 5 lo explica sin recomendar ningún sitio
+  if (/\b(como|donde|de donde)\b.*\b(compro|comprar|consigo|conseguir|obtener|obtengo|adquirir)\b/.test(t)) return { intent: 'lesson', n: 4 };
+  if (/\bno (lo )?entiendo\b|\bmas facil\b|\bexplica(me)? mejor\b|\bno me entero\b/.test(t)) return { intent: 'simpler' };
   if (/\b(red zcash|estado de la red|blindad[oa]s? hay|cuanto (zec )?hay blindado|altura|bloques)\b/.test(t)) return { intent: 'network' };
-  if (/\b(curso|aprender|aprende|leccion|lecciones|empezar desde cero|desde cero)\b/.test(t)) return { intent: 'learn' };
+  if (/\b(curso|aprender|aprende|leccion|lecciones|empezar desde cero|desde cero)\b/.test(t)) return { intent: 'learn', fromStart: /\b(empezar|empieza|desde cero|desde el principio)\b/.test(t) };
   if (/\b(guia de privacidad|privacidad)$/.test(t)) return { intent: 'privacy' };
   if (/^(precio|precios|cotizacion|cuanto vale|a cuanto esta|como esta|como va)( el| la)?( (zcash|zec|bitcoin|btc))?$/.test(t) || /^(zcash|zec|bitcoin|btc)$/.test(t)) return { intent: 'price', asset: assetIn(t) };
   if (/^(precio|cotizacion) de(l)? (zcash|zec|bitcoin|btc)\b/.test(t)) return { intent: 'price', asset: assetIn(t) };
@@ -57,6 +76,8 @@ ${FACTS}
 Reglas:
 - Nunca recomiendes comprar, vender ni invertir, ni predigas precios. Si lo piden, explica con amabilidad que Zash informa y enseña, no aconseja.
 - No recomiendes exchanges concretos.
+- Las direcciones blindadas que hay que usar hoy son las unificadas (empiezan por u1); las Sapling (zs) son antiguas.
+- Si te vacilan o bromean («eres un friki»), contesta con humor amable y sigue ayudando; nunca a la defensiva. Empieza siempre con mayúscula.
 - Si preguntan algo que no es de Zcash, criptomonedas o privacidad, reconduce con amabilidad.
 - Si alguien pide ayuda para algo ilegal, niégate con educación.
 - Si la pregunta sugiere una posible estafa (le piden la frase de recuperación, le prometen duplicar dinero), avísale claramente. Escribe con la puntuación de la RAE, en frases naturales y sin guiones largos (—).`;
@@ -67,7 +88,7 @@ export async function answer(ai, text, country) {
   try {
     const out = await ai.run(MODEL, {
       messages: [
-        { role: 'system', content: SYSTEM + (country && country.id !== 'es' ? `\nEl usuario es de ${country.label.replace(/^\S+\s/, '')}: usa español neutro de Latinoamérica.` : '') },
+        { role: 'system', content: SYSTEM + (country && country.id !== 'es' ? `\nEl usuario es de ${country.label.replace(/^\S+\s/, '')}: usa español neutro de Latinoamérica.` : '\nEl usuario es de España: español de España, de tú (nunca de vos).') },
         { role: 'user', content: String(text).slice(0, 800) },
       ],
       max_tokens: 380,

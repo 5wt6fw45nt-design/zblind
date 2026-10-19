@@ -118,3 +118,14 @@ test('una pasada del motor cabe en los límites del plan gratuito', async () => 
   assert.ok(q <= 20, `consultas D1: ${q}`);
   assert.ok(used <= 10, `peticiones externas: ${used}`);
 });
+
+test('reglas: precio en otra moneda, «¿cómo compro?» a la lección 5, «no lo entiendo» y empezar el curso', () => {
+  assert.deepEqual(quickIntent('¿y en pesos mexicanos?'), { intent: 'price', asset: 'ZEC', currency: 'MXN', currencyName: 'pesos mexicanos' });
+  assert.deepEqual(quickIntent('precio en dólares'), { intent: 'price', asset: 'ZEC', currency: 'USD', currencyName: 'dólares' });
+  assert.equal(quickIntent('avísame si baja de 900 euros').intent, 'alert'); // una alerta no es un cambio de moneda
+  assert.deepEqual(quickIntent('¿Cómo compro zcash?'), { intent: 'lesson', n: 4 });
+  assert.deepEqual(quickIntent('¿dónde puedo conseguir ZEC?'), { intent: 'lesson', n: 4 });
+  assert.deepEqual(quickIntent('no entiendo la lección'), { intent: 'simpler' });
+  assert.equal(quickIntent('empezar el curso').fromStart, true);
+  assert.equal(quickIntent('curso').fromStart, false);
+});

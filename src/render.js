@@ -41,7 +41,7 @@ export function priceCard({ asset, rates, chg, country, maya, btcRatio }) {
   lines.push(`💰 <b>${money(local, country)}</b>`);
   if (country.currency !== 'USD') lines.push(`💵 ${fmt(rates.USD, dec(rates.USD))} dólares`);
   if (country.also && rates[country.also]) lines.push(`≈ ${fmt(rates[country.also], 0)} ${country.also === 'VES' ? 'bolívares' : country.also}`);
-  lines.push(`${chg == null ? '' : chg >= 0 ? '📈' : '📉'} ${pct(chg)} en 24 h`);
+  if (chg != null) lines.push(`${chg >= 0 ? '📈' : '📉'} ${pct(chg)} en 24 h`);
   if (asset.id === 'ZEC' && btcRatio) lines.push(`₿ 1 ZEC = ${fmt(btcRatio, 6)} BTC`);
   if (asset.id === 'ZEC' && maya) lines.push(`⛓️ En Maya Protocol (descentralizado): ${fmt(maya.usd, 2)} dólares`);
   lines.push('', `<i>Fuentes: Coinbase${asset.id === 'ZEC' && maya ? ' y Maya Protocol' : ''}. ${DISCLAIMER}</i>`);
@@ -137,6 +137,7 @@ export const T = {
   askZone: '¿Desde qué país me lees? Así te doy el precio en tu moneda y el resumen a tu hora.',
   zoneSet: (c) => `Hecho: ${c.label}. Precios en ${c.currencyName} y resumen a tu hora. Lo cambias en ⚙️ Ajustes.`,
   noData: 'Ahora mismo no puedo consultar el precio. Prueba en un minuto.',
+  noCurrency: (name) => `No tengo el precio en ${name}. Te lo doy en tu moneda, en dólares y en euros.`,
   noNetwork: 'Ahora mismo no puedo consultar la red Zcash. Prueba en un rato.',
   alertUsage: (c) => `Dime el precio en ${c.currencyName}, por ejemplo: «avísame si zcash baja de 900» o «avísame si zcash pasa de 1.500».`,
   alertSet: (id, asset, op, p, c) => `🔔 Hecho (alerta #${id}): te aviso cuando ${asset.name} ${op === '>' ? 'pase de' : 'baje de'} ${money(p, c)}.`,

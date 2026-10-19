@@ -50,10 +50,12 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
     { text: id === 'ZEC' ? '₿ Bitcoin' : '🛡️ Zcash', callback_data: `p:${id === 'ZEC' ? 'BTC' : 'ZEC'}` },
   ]] } });
 
-  async function cmdPrice(chatId, user, id = 'ZEC') {
-    const country = countryOf(user);
+  async function cmdPrice(chatId, user, id = 'ZEC', cur = null) {
+    const own = countryOf(user);
+    const country = cur && cur.currency !== own.currency ? { ...own, currency: cur.currency, currencyName: cur.currencyName, also: null } : own;
     const rates = await prices(id);
     if (!rates) return reply(chatId, T.noData);
+    if (!rates[country.currency]) return reply(chatId, T.noCurrency(cur.currencyName));
     const chg = (await kvJson(`chg:${id}`))?.chg ?? null;
     const maya = id === 'ZEC' ? await kvJson('maya') : null;
     const btcRatio = id === 'ZEC' ? rates.BTC : null;
@@ -103,6 +105,16 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
     const n = Math.max(0, Math.min(LESSONS.length - 1, i));
     if (n > (user.lesson ?? 0)) await db.setLesson(user.id, n);
     return reply(chatId, R.lesson(n), R.lessonButtons(n));
+  }
+
+  /** «No lo entiendo»: la última lección, otra vez y más fácil, con un ejemplo de la vida diaria. */
+  async function explainSimpler(chatId, user, now) {
+    const l = LESSONS[user.lesson ?? 0];
+    const left = await db.consumeUse(user.id, madrid(now, countryOf(user).tz).date, cfg.aiQuestionsPerDay);
+    if (left < 0) return reply(chatId, T.limitAI(cfg.aiQuestionsPerDay));
+    const plain = l.text.join('\n').replace(/<[^>]+>/g, '');
+    const r = await answer(ai, `No he entendido esta lección. Explícamela otra vez con palabras más sencillas y un ejemplo de la vida diaria:\n${l.title}\n${plain}`, countryOf(user));
+    return reply(chatId, r ? `🎓 <b>${R.esc(l.title)}</b>, más fácil:\n\n${R.esc(r)}` : T.aiFail, R.lessonButtons(user.lesson ?? 0));
   }
 
   // --- alertas ---
@@ -187,9 +199,11 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
     const text = msg.text.trim();
     const it = R.BUTTONS[text] ? { intent: R.BUTTONS[text] } : quickIntent(text);
     switch (it?.intent) {
-      case 'price': return cmdPrice(chatId, user, it.asset || 'ZEC');
+      case 'price': return cmdPrice(chatId, user, it.asset || 'ZEC', it.currency ? it : null);
+      case 'lesson': return sendLesson(chatId, user, it.n);
+      case 'simpler': return explainSimpler(chatId, user, now);
       case 'chart': return sendChart(chatId, user, it.asset || 'ZEC');
-      case 'learn': return user.lesson > 0 ? reply(chatId, R.lessonIndex().text, R.lessonIndex().extra) : sendLesson(chatId, user, 0);
+      case 'learn': return user.lesson > 0 && !it.fromStart ? reply(chatId, R.lessonIndex().text, R.lessonIndex().extra) : sendLesson(chatId, user, 0);
       case 'privacy': return reply(chatId, R.privacy(), { reply_markup: { inline_keyboard: [[{ text: '🎓 Empezar el curso', callback_data: 'l:0' }]] } });
       case 'network': return cmdNetwork(chatId, user);
       case 'alerts': return cmdAlerts(chatId, user);
