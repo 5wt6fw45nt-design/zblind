@@ -129,3 +129,35 @@ test('reglas: precio en otra moneda, «¿cómo compro?» a la lección 5, «no l
   assert.equal(quickIntent('empezar el curso').fromStart, true);
   assert.equal(quickIntent('curso').fromStart, false);
 });
+
+test('¿Es esto una copia?: oficial, imitaciones, señales de estafa y sello', async () => {
+  const { analyze, report } = await import('../src/copias.js');
+  assert.equal(analyze('https://zodl.com/download').verdict, 'ok');
+  assert.equal(analyze('mira www.z.cash/ecosystem').verdict, 'ok');
+  assert.equal(analyze('@ZblindBot').verdict, 'ok');
+  for (const fake of ['https://zodl-wallet.com', 'zodI.com', 'https://z-cash.org/airdrop', 'zashi-app.net', 'https://zcash-wallet.io']) {
+    assert.equal(analyze(fake).verdict, 'red', fake);
+  }
+  for (const fake of ['@Zcash_Support', '@ZblindBot_oficial', '@zblindbott']) assert.equal(analyze(fake).verdict, 'red', fake);
+  assert.equal(analyze('Hola, soy del soporte de Zodl. Para sincronizar tu cartera mándame tus 24 palabras').verdict, 'red');
+  assert.equal(analyze('Envía 1 ZEC y te devolvemos el doble').verdict, 'red');
+  assert.equal(analyze('https://ejemplo-tienda.com').verdict, 'unknown');
+  assert.equal(analyze('hola qué tal').verdict, 'empty');
+  assert.match(report('https://zodl-wallet.com'), /no es su web oficial[\s\S]*@ZblindBot/);
+  assert.match(analyze('u1' + 'q'.repeat(100)).lines.join(), /unificada/);
+});
+
+test('el botón de copias espera lo que pegues y luego responde; la lección extra existe', async () => {
+  const s = setup();
+  await s.msg(1, '/start');
+  await s.msg(1, '🔎 ¿Es esto una copia?');
+  assert.match(s.last(1), /Pégame lo que te tenga mosca/);
+  await s.msg(1, 'no sé');
+  assert.match(s.last(1), /No he encontrado/);
+  await s.msg(1, 'me escribió @Zcash_Help pidiendo mi frase de recuperación');
+  assert.match(s.last(1), /Cuidado/);
+  await s.msg(1, 'https://zodl.com');
+  assert.match(s.last(1), /web oficial de la cartera Zodl/);
+  await s.tap(1, 'cf:0');
+  assert.match(s.last(1), /cómo detectar copias falsas[\s\S]*Nadie de verdad te escribe primero/);
+});

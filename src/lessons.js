@@ -45,7 +45,7 @@ export const LESSONS = [
       '• Apúntala en papel y guárdala en un sitio seguro.',
       '• <b>Nunca</b> se la des a nadie ni la escribas en una web: ningún soporte de verdad te la pedirá jamás.',
       '',
-      'Elige una cartera que use <b>direcciones blindadas</b> por defecto (por ejemplo, Zashi). La lista oficial está en la web <b>z.cash</b>. Descárgala siempre de la tienda oficial o de su web.',
+      'Elige una cartera que use <b>direcciones blindadas</b> por defecto (por ejemplo, Zodl, que antes se llamaba Zashi). La lista oficial está en <b>z.cash/ecosystem</b>. Descárgala siempre de la tienda oficial o de su web.',
     ],
   },
   {
@@ -138,7 +138,7 @@ export const PRIVACY_GUIDE = [
 export const FACTS = `Zcash (ZEC): criptomoneda lanzada en octubre de 2016, basada en el código de Bitcoin. Máximo 21 millones de ZEC. Prueba de trabajo (algoritmo Equihash), bloques cada unos 75 segundos. Halving aproximadamente cada 4 años (2020 y 2024).
 Direcciones transparentes (empiezan por t, públicas como en Bitcoin) y blindadas (Sapling empiezan por zs; unificadas por u1). Las transacciones blindadas ocultan remitente, destinatario e importe con pruebas de conocimiento cero (zk-SNARKs; Halo 2 en Orchard, sin configuración de confianza).
 Memo cifrado de hasta 512 bytes en pagos blindados. Claves de visualización (viewing keys) para enseñar movimientos a terceros sin dar acceso a los fondos.
-Carteras de autocustodia con soporte blindado: lista oficial en z.cash. Frase de recuperación: nunca compartirla.
+Carteras de autocustodia con soporte blindado: lista oficial en z.cash/ecosystem (por ejemplo Zodl, antes llamada Zashi, web zodl.com; Zingo!, Edge, Unstoppable, Vizor, Keystone). Estafas habituales: falsos soportes que escriben por privado, webs y apps que imitan carteras, «airdrops» y promesas de devolver el doble; nadie legítimo pide la frase de recuperación. Zblind tiene un botón «🔎 ¿Es esto una copia?» para comprobar enlaces, cuentas y mensajes. Frase de recuperación: nunca compartirla.
 Ironwood (NU6.3): nuevo fondo blindado activado el 28 de julio de 2026 (bloque 3.428.143) tras encontrarse en mayo de 2026 un fallo en el circuito de Orchard; reutiliza las acciones de Orchard y Halo 2 con su propio árbol y contabilidad, y permite verificar mejor el total de ZEC. Orchard queda restringido: los fondos pueden salir (turnstile) y se recomienda migrarlos a Ironwood con una cartera actualizada; la migración no es automática.
 Parte de la emisión financia el desarrollo y ayudas a la comunidad (Zcash Community Grants).
 UE: el reglamento contra el blanqueo (AMLR) prevé que desde julio de 2027 los proveedores de criptoactivos no gestionen criptomonedas con anonimato reforzado; la tenencia en carteras propias no se prohíbe.`;

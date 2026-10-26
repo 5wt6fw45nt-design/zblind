@@ -25,10 +25,11 @@ export const BUTTONS = {
   '⚙️ Ajustes': 'settings',
   '📖 Cómo funciona': 'help',
   '💬 Tu opinión': 'feedback',
+  '🔎 ¿Es esto una copia?': 'copia',
 };
 export const KEYBOARD = {
   reply_markup: {
-    keyboard: [['💰 Precio', '📊 Gráfico'], ['🎓 Aprende Zcash', '🛡️ Privacidad'], ['🔔 Mis alertas', '🌐 Red Zcash'], ['⚙️ Ajustes', '📖 Cómo funciona'], ['💬 Tu opinión']].map((r) => r.map((text) => ({ text }))),
+    keyboard: [['💰 Precio', '📊 Gráfico'], ['🎓 Aprende Zcash', '🛡️ Privacidad'], ['🔔 Mis alertas', '🌐 Red Zcash'], ['⚙️ Ajustes', '📖 Cómo funciona'], ['🔎 ¿Es esto una copia?', '💬 Tu opinión']].map((r) => r.map((text) => ({ text }))),
     resize_keyboard: true,
     is_persistent: true,
   },
@@ -78,7 +79,7 @@ export function lessonButtons(i) {
 }
 export const lessonIndex = () => ({
   text: '📚 <b>Curso «Zcash desde cero»</b>\n\nToca una lección:',
-  extra: { reply_markup: { inline_keyboard: LESSONS.map((l, i) => [{ text: l.title, callback_data: `l:${i}` }]) } },
+  extra: { reply_markup: { inline_keyboard: [...LESSONS.map((l, i) => [{ text: l.title, callback_data: `l:${i}` }]), [{ text: '🕵️ Extra: cómo detectar copias falsas', callback_data: 'cf:0' }]] } },
 });
 export const privacy = () => PRIVACY_GUIDE.join('\n');
 
@@ -130,6 +131,9 @@ export const T = {
     '4️⃣ <b>«🌐 Red Zcash»</b>: cuántos ZEC hay y cuántos están blindados, con datos de la propia red.',
     '5️⃣ <b>Pregúntame lo que quieras</b>: «¿qué es una clave de visualización?», «¿Zcash es legal?».',
     '6️⃣ Cada mañana a las 9:00 (tu hora), Zcash hoy y un consejo. Lo apagas en ⚙️ Ajustes.',
+    '7️⃣ <b>«🔎 ¿Es esto una copia?»</b>: pégame un enlace, una cuenta o un mensaje y te digo si huele a estafa.',
+    '',
+    '🛡️ El Zblind de verdad es @ZblindBot. Nunca te escribe primero ni te pide tu frase de recuperación ni dinero.',
     '',
     'Gratis y de código abierto. Sin Premium.',
     `<i>${DISCLAIMER}</i>`,
