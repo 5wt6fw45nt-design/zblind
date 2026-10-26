@@ -140,6 +140,7 @@ test('¿Es esto una copia?: oficial, imitaciones, señales de estafa y sello', a
   }
   for (const fake of ['@Zcash_Support', '@ZblindBot_oficial', '@zblindbott']) assert.equal(analyze(fake).verdict, 'red', fake);
   assert.equal(analyze('Hola, soy del soporte de Zodl. Para sincronizar tu cartera mándame tus 24 palabras').verdict, 'red');
+  assert.match(report('Hola, soy del soporte de Zodl, mándame tus 24 palabras'), /nombre de <b>Zodl<\/b>[\s\S]*zodl\.com/);
   assert.equal(analyze('Envía 1 ZEC y te devolvemos el doble').verdict, 'red');
   assert.equal(analyze('https://ejemplo-tienda.com').verdict, 'unknown');
   assert.equal(analyze('hola qué tal').verdict, 'empty');

@@ -67,6 +67,10 @@ const FLAGS = [
   [/(soporte|support|asistencia|tecnico).{0,40}(te escrib|contact|privado|dm|whatsapp)|te (escribo|contacto) (del|de) (soporte|equipo)|soy (del|de) (soporte|equipo|servicio)/, 'Dice ser <b>soporte</b> y te escribe por privado. El soporte de verdad nunca escribe primero.'],
 ];
 
+// Nombres que usan los estafadores para hacerse pasar por alguien, con su web oficial (de z.cash/ecosystem)
+const NAMED = [['zodl', 'zodl.com'], ['zashi', 'zodl.com'], ['zingo', 'zingolabs.org'], ['edge', 'edge.app'], ['keystone', 'keyst.one'], ['unstoppable', 'unstoppable.money'], ['vizor', 'vizor.cash'], ['vultisig', 'vultisig.com'], ['zechub', 'zechub.wiki'], ['zcash', 'z.cash'], ['zblind', 't.me/ZblindBot']];
+const NAME_LABEL = { zodl: 'Zodl', zashi: 'Zashi (ahora Zodl)', zingo: 'Zingo!', edge: 'Edge', keystone: 'Keystone', unstoppable: 'Unstoppable', vizor: 'Vizor', vultisig: 'Vultisig', zechub: 'ZecHub', zcash: 'Zcash', zblind: 'Zblind' };
+
 function addressKind(a) {
   if (/^t1[1-9A-HJ-NP-Za-km-z]{33}$/.test(a)) return 'transparente (<code>t1</code>): pública, como en Bitcoin';
   if (/^t3[1-9A-HJ-NP-Za-km-z]{33}$/.test(a)) return 'transparente de varias firmas (<code>t3</code>): pública';
@@ -122,6 +126,16 @@ export function analyze(input) {
   }
 
   for (const [re, why] of FLAGS) if (re.test(t)) { red++; lines.push(`🚩 ${why}`); }
+
+  // Si el mensaje sospechoso se escuda en un nombre conocido, decimos cuál es la web de verdad
+  if (red) {
+    for (const [name, site] of NAMED) {
+      if (new RegExp(`\\b${name}\\b`).test(t) && !seen.has(site)) {
+        seen.add(site);
+        lines.push(`ℹ️ Usa el nombre de <b>${NAME_LABEL[name] || name}</b> para parecer de fiar. La web de verdad es <code>${site}</code>, y nadie de allí te escribirá por privado ni te pedirá tu frase.`);
+      }
+    }
+  }
 
   const verdict = red ? 'red' : ok && !unknown ? 'ok' : lines.length ? 'unknown' : 'empty';
   return { verdict, lines };
