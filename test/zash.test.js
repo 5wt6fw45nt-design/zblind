@@ -88,7 +88,7 @@ test('usuario nuevo de México: instrucciones fijadas, país, precio en pesos, c
   assert.match(s.last(1), /ha bajado de 15,000 pesos mexicanos/);
   await s.msg(1, '💬 Tu opinión');
   await s.msg(1, 'Más lecciones, porfa');
-  assert.match(s.last(999), /Opinión en Zash.*Más lecciones/s);
+  assert.match(s.last(999), /Opinión en Zblind.*Más lecciones/s);
   await s.msg(1, '📊 Gráfico');
   assert.ok(s.calls.some((c) => c.method === 'sendPhoto'));
 });

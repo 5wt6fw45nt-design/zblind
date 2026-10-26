@@ -1,4 +1,4 @@
-// Conversación de Zash: botones, texto libre (reglas + IA), curso, alertas, ajustes y opinión. Sin pagos.
+// Conversación de Zblind: botones, texto libre (reglas + IA), curso, alertas, ajustes y opinión. Sin pagos.
 
 import { ASSETS, COUNTRIES, countryById, countryOf } from './config.js';
 import { LESSONS } from './lessons.js';
@@ -156,7 +156,7 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
         [{ text: user.daily ? '🌙 Apagar resumen de la mañana' : '☀️ Encender resumen de la mañana', callback_data: 'set:daily' }],
         [{ text: '🔔 Mis alertas', callback_data: 'set:alerts' }, { text: '💬 Dar mi opinión', callback_data: 'set:feedback' }],
         [{ text: '📄 Términos y privacidad', callback_data: 'set:terms' }, { text: '🗑 Borrar mis datos', callback_data: 'set:delete' }],
-        [{ text: '📤 Compártelo con alguien', url: 'https://t.me/share/url?url=https%3A%2F%2Ft.me%2FZashCash_bot%3Fstart%3Damigo&text=Mira%20este%20bot%3A%20te%20ense%C3%B1a%20Zcash%20desde%20cero%20en%20espa%C3%B1ol%2C%20con%20el%20precio%20en%20tu%20moneda%20y%20alertas.%20Gratis%20y%20de%20c%C3%B3digo%20abierto.' }],
+        [{ text: '📤 Compártelo con alguien', url: 'https://t.me/share/url?url=https%3A%2F%2Ft.me%2FZblindBot%3Fstart%3Damigo&text=Mira%20este%20bot%3A%20te%20ense%C3%B1a%20Zcash%20desde%20cero%20en%20espa%C3%B1ol%2C%20con%20el%20precio%20en%20tu%20moneda%20y%20alertas.%20Gratis%20y%20de%20c%C3%B3digo%20abierto.' }],
       ] },
     });
   }
@@ -175,7 +175,7 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
     const text = msg.text.trim().slice(0, 2000);
     const who = [user.first_name, user.username ? `@${user.username}` : ''].filter(Boolean).join(' ') || String(user.id);
     await db.kvSet(`opinion:${now}:${user.id}`, JSON.stringify({ id: user.id, who, country: countryOf(user).id, text }));
-    await notifyAdmins(`💬 <b>Opinión en Zash</b> de ${R.esc(who)} (${countryOf(user).label}, id ${user.id}):\n\n${R.esc(text)}\n\nPara contestar: /responder ${user.id} tu respuesta`);
+    await notifyAdmins(`💬 <b>Opinión en Zblind</b> de ${R.esc(who)} (${countryOf(user).label}, id ${user.id}):\n\n${R.esc(text)}\n\nPara contestar: /responder ${user.id} tu respuesta`);
     await reply(msg.chat.id, T.feedbackThanks);
     return true;
   }
@@ -307,7 +307,7 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
       case 'start':
         if (/^[A-Za-z0-9_-]{1,64}$/.test(arg)) await db.setSource(user.id, arg.toLowerCase());
         await sendInstructions(chatId, true);
-        await reply(chatId, 'Así funciona: toca «🎓 Aprende Zcash» para la primera lección, o pregúntame lo que quieras, por ejemplo «¿qué es una dirección blindada?».', { reply_markup: { inline_keyboard: [[{ text: '📤 Compártelo con alguien', url: 'https://t.me/share/url?url=https%3A%2F%2Ft.me%2FZashCash_bot%3Fstart%3Damigo&text=Mira%20este%20bot%3A%20te%20ense%C3%B1a%20Zcash%20desde%20cero%20en%20espa%C3%B1ol%2C%20con%20el%20precio%20en%20tu%20moneda%20y%20alertas.%20Gratis%20y%20de%20c%C3%B3digo%20abierto.' }]] } });
+        await reply(chatId, 'Así funciona: toca «🎓 Aprende Zcash» para la primera lección, o pregúntame lo que quieras, por ejemplo «¿qué es una dirección blindada?».', { reply_markup: { inline_keyboard: [[{ text: '📤 Compártelo con alguien', url: 'https://t.me/share/url?url=https%3A%2F%2Ft.me%2FZblindBot%3Fstart%3Damigo&text=Mira%20este%20bot%3A%20te%20ense%C3%B1a%20Zcash%20desde%20cero%20en%20espa%C3%B1ol%2C%20con%20el%20precio%20en%20tu%20moneda%20y%20alertas.%20Gratis%20y%20de%20c%C3%B3digo%20abierto.' }]] } });
         if (!user.country) return reply(chatId, T.askZone, zoneButtons());
         return cmdPrice(chatId, user, 'ZEC');
       case 'ayuda': case 'help': return sendInstructions(chatId);

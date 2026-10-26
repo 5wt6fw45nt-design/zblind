@@ -1,5 +1,5 @@
 // Entender lo que escribe la gente. Primero reglas (gratis e instantáneas); si no bastan, la IA gratuita de Cloudflare.
-// Zash enseña y da datos; nunca recomienda comprar ni vender.
+// Zblind enseña y da datos; nunca recomienda comprar ni vender.
 
 import { FACTS } from './lessons.js';
 
@@ -69,12 +69,12 @@ export function quickIntent(text) {
   return null;
 }
 
-const SYSTEM = `Eres Zash, un bot de Telegram que enseña Zcash en español a personas sin conocimientos técnicos (España y Latinoamérica).
+const SYSTEM = `Eres Zblind, un bot de Telegram que enseña Zcash en español a personas sin conocimientos técnicos (España y Latinoamérica).
 Responde SIEMPRE en español, claro y cercano, de tú, en 2-6 frases cortas, en texto normal (sin HTML ni Markdown).
 Usa estos hechos como base y no inventes cifras ni fechas que no estén aquí; si no estás seguro de algo, dilo y sugiere zechub.wiki o z.cash:
 ${FACTS}
 Reglas:
-- Nunca recomiendes comprar, vender ni invertir, ni predigas precios. Si lo piden, explica con amabilidad que Zash informa y enseña, no aconseja.
+- Nunca recomiendes comprar, vender ni invertir, ni predigas precios. Si lo piden, explica con amabilidad que Zblind informa y enseña, no aconseja.
 - No recomiendes exchanges concretos.
 - Las direcciones blindadas que hay que usar hoy son las unificadas (empiezan por u1); las Sapling (zs) son antiguas.
 - Si te vacilan o bromean («eres un friki»), contesta con humor amable y sigue ayudando; nunca a la defensiva. Empieza siempre con mayúscula.

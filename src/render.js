@@ -1,4 +1,4 @@
-// Todo lo que dice Zash. Claro, cercano y sin prometer nada: informa y enseña, no aconseja.
+// Todo lo que dice Zblind. Claro, cercano y sin prometer nada: informa y enseña, no aconseja.
 
 import { currentLocale } from './region.js';
 import { LESSONS, PRIVACY_GUIDE } from './lessons.js';
@@ -107,22 +107,22 @@ export const TIPS = [
 
 export function settings({ country, daily, alerts }) {
   return [
-    '⚙️ <b>Tus ajustes de Zash</b>',
+    '⚙️ <b>Tus ajustes de Zblind</b>',
     '',
     `🌎 País: ${esc(country.label)}`,
     `💱 Precios en: ${esc(country.currencyName)}`,
     `☀️ Resumen de la mañana (${'09:00'} de tu hora): ${daily ? 'encendido' : 'apagado'}`,
     `🔔 Alertas activas: ${alerts}`,
     '',
-    'Todo es tuyo: cámbialo cuando quieras. Zash es gratis, sin Premium.',
+    'Todo es tuyo: cámbialo cuando quieras. Zblind es gratis, sin Premium.',
   ].join('\n');
 }
 
 export const T = {
   instructions: (cfg) => [
-    '📖 <b>Cómo funciona Zash</b>',
+    '📖 <b>Cómo funciona Zblind</b>',
     '',
-    'Zash te enseña <b>Zcash desde cero</b>, en español y gratis. Zcash es dinero digital como bitcoin, pero con <b>privacidad</b>.',
+    'Zblind te enseña <b>Zcash desde cero</b>, en español y gratis. Zcash es dinero digital como bitcoin, pero con <b>privacidad</b>.',
     '',
     '1️⃣ <b>«💰 Precio»</b>: Zcash en tu moneda, en dólares y frente a bitcoin. <b>«📊 Gráfico»</b>: las últimas 72 horas.',
     '2️⃣ <b>«🎓 Aprende Zcash»</b>: un curso corto, lección a lección. <b>«🛡️ Privacidad»</b>: guía rápida para usarlo en privado.',
@@ -155,19 +155,19 @@ export const T = {
   feedbackAsk: '💬 Cuéntame qué mejorarías, qué te falla o qué echas de menos. Escríbelo en tu próximo mensaje: lo lee una persona del equipo y te puede contestar por aquí.\n\n(Si cambias de idea, escribe «cancelar».)',
   feedbackThanks: '¡Gracias! 🙏 Ya lo tenemos. Si hace falta, te contestamos por aquí.',
   feedbackCancel: 'Vale, sin problema 👍',
-  feedbackReply: (t) => `💬 <b>Respuesta del equipo de Zash:</b>\n\n${esc(t)}\n\n<i>Puedes contestar con «💬 Tu opinión».</i>`,
+  feedbackReply: (t) => `💬 <b>Respuesta del equipo de Zblind:</b>\n\n${esc(t)}\n\n<i>Puedes contestar con «💬 Tu opinión».</i>`,
   dailyOn: '☀️ Resumen de la mañana encendido.',
   dailyOff: '🌙 Resumen de la mañana apagado.',
   deleteAsk: 'Esto borra tu cuenta y tus alertas. No hay vuelta atrás.\n\nSi lo tienes claro: /borrar_mis_datos confirmar',
   deleted: 'Hecho. Tus datos están borrados.',
   terms: [
-    '<b>Términos y privacidad de Zash</b>',
+    '<b>Términos y privacidad de Zblind</b>',
     '',
-    '1. Zash es gratuito y de código abierto. No hay pagos ni Premium.',
-    '2. Zash informa y enseña sobre Zcash. No es asesoramiento financiero ni recomienda comprar, vender o invertir, ni recomienda exchanges.',
+    '1. Zblind es gratuito y de código abierto. No hay pagos ni Premium.',
+    '2. Zblind informa y enseña sobre Zcash. No es asesoramiento financiero ni recomienda comprar, vender o invertir, ni recomienda exchanges.',
     '3. Fuentes: Coinbase (precios), Maya Protocol (precio descentralizado) y el explorador de Nighthawk (datos de la red Zcash). Pueden fallar o retrasarse.',
     '4. Guardamos tu ID de Telegram, tu nombre de usuario, tu país y tus alertas. Nada más. No se vende ni se comparte. Para responder a tus preguntas usamos la inteligencia artificial de Cloudflare, que no guarda tus mensajes. /borrar_mis_datos lo borra todo.',
-    '5. Zcash es una marca de sus titulares; Zash es un proyecto independiente de la comunidad.',
+    '5. Zcash es una marca de sus titulares; Zblind es un proyecto independiente de la comunidad.',
     '6. Responsable: Augusto Martín (riberasistemas) · hola@riberasistemas.com',
   ].join('\n'),
 };

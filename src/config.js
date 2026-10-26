@@ -1,4 +1,4 @@
-// Zash · Zcash en español. Países, monedas y parámetros. Gratis: sin Premium ni pagos.
+// Zblind · Zcash en español. Países, monedas y parámetros. Gratis: sin Premium ni pagos.
 
 // Países: hora del resumen diario y moneda en la que ves el precio (todas las da Coinbase).
 export const COUNTRIES = [

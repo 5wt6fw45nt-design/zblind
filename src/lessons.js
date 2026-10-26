@@ -51,7 +51,7 @@ export const LESSONS = [
   {
     title: '5. Cómo conseguir ZEC',
     text: [
-      'Lo habitual es comprar en un <b>exchange</b> (una plataforma de compraventa) y enviarlo a tu cartera. Zash no recomienda ninguno: elige uno autorizado en tu país.',
+      'Lo habitual es comprar en un <b>exchange</b> (una plataforma de compraventa) y enviarlo a tu cartera. Zblind no recomienda ninguno: elige uno autorizado en tu país.',
       '',
       'Un detalle importante: algunos exchanges solo envían a direcciones <b>transparentes</b> (las que empiezan por <code>t</code>). No pasa nada: tu cartera te da una dirección transparente para recibir y luego <b>«blindas»</b> los fondos con un toque.',
       '',
@@ -102,7 +102,7 @@ export const LESSONS = [
       '• <b>Impuestos:</b> en muchos países hay que declarar las ganancias con criptomonedas. Consulta la normativa de tu país.',
       '• <b>Normas:</b> en la Unión Europea, el reglamento contra el blanqueo prevé que desde julio de 2027 los exchanges no ofrezcan criptomonedas de privacidad. Lo que tengas en tu propia cartera sigue siendo tuyo.',
       '',
-      'Zash te da información y formación, <b>nunca consejos de inversión</b>.',
+      'Zblind te da información y formación, <b>nunca consejos de inversión</b>.',
     ],
   },
   {
