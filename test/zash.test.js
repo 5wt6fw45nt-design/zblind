@@ -71,7 +71,8 @@ test('usuario nuevo de México: instrucciones fijadas, país, precio en pesos, c
   assert.ok(s.calls.some((c) => c.method === 'pinChatMessage'));
   assert.match(s.last(1), /[Dd]esde qué país/);
   await s.tap(1, 'tz:mx');
-  assert.match(s.last(1), /Zcash \(ZEC\)[\s\S]*18,500 pesos mexicanos[\s\S]*Maya Protocol/);
+  assert.match(s.to(1).at(-2).text, /Zcash \(ZEC\)[\s\S]*18,500 pesos mexicanos[\s\S]*Maya Protocol/);
+  assert.match(s.last(1), /Por dónde empiezo/);
   await s.msg(1, '🎓 Aprende Zcash');
   assert.match(s.last(1), /1\. ¿Qué es Zcash\?/);
   await s.tap(1, 'l:1');
@@ -154,7 +155,7 @@ test('el botón de copias espera lo que pegues y luego responde; la lección ext
   const s = setup();
   await s.msg(1, '/start');
   await s.msg(1, '🔎 ¿Es esto una copia?');
-  assert.match(s.last(1), /Pégame lo que te tenga mosca/);
+  assert.match(s.last(1), /Pégame lo que te parezca sospechoso/);
   await s.msg(1, 'no sé');
   assert.match(s.last(1), /No he encontrado/);
   await s.msg(1, 'me escribió @Zcash_Help pidiendo mi frase de recuperación');

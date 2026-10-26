@@ -174,7 +174,7 @@ export function report(input) {
 export const ASK = [
   '🔎 <b>¿Es esto una copia?</b>',
   '',
-  'Pégame lo que te tenga mosca: un enlace, una web, una cuenta de Telegram (@algo), una dirección de Zcash o el mensaje entero que te han mandado.',
+  'Pégame lo que te parezca sospechoso: un enlace, una web, una cuenta de Telegram (@algo), una dirección de Zcash o el mensaje entero que te mandaron. También vale solo un nombre, como «zodl».',
   '',
   'Lo comparo con la lista oficial de z.cash y busco las señales típicas de estafa.',
   '',

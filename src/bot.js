@@ -45,6 +45,25 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
     return n;
   }
 
+  // Los tres primeros pasos, en grande, para quien no sabe por dónde empezar
+  const startButtons = { reply_markup: { inline_keyboard: [
+    [{ text: '🎓 Primera lección (1 minuto)', callback_data: 'l:0' }],
+    [{ text: '🔎 Comprobar si algo es falso', callback_data: 'ck:0' }],
+    [{ text: '💰 ¿Cuánto vale hoy?', callback_data: 'p:ZEC' }],
+    [{ text: '📤 Compártelo con alguien', url: 'https://t.me/share/url?url=https%3A%2F%2Ft.me%2FZblindBot%3Fstart%3Damigo&text=Mira%20este%20bot%3A%20te%20ense%C3%B1a%20Zcash%20desde%20cero%20en%20espa%C3%B1ol%2C%20con%20el%20precio%20en%20tu%20moneda%20y%20alertas.%20Gratis%20y%20de%20c%C3%B3digo%20abierto.' }],
+  ] } };
+
+  // Ejemplo de alerta con cifras que tengan sentido al precio de hoy (no un «900» cuando vale 270)
+  const roundNice = (x) => { const m = 10 ** Math.max(0, Math.floor(Math.log10(x)) - 1); return Math.round(x / m) * m; };
+  async function alertExample(user, id = 'ZEC') {
+    const p = (await prices(id))?.[countryOf(user).currency];
+    return p ? { down: R.fmt(roundNice(p * 0.9), 0), up: R.fmt(roundNice(p * 1.15), 0) } : { down: '200', up: '400' };
+  }
+  const alertHelp = async (chatId, user, id = 'ZEC') => {
+    const txt = T.alertUsage(countryOf(user), await alertExample(user, id));
+    return reply(chatId, id === 'ZEC' ? txt : txt.replaceAll('zcash', ASSETS[id].name.toLowerCase()));
+  };
+
   const assetButtons = (id) => ({ reply_markup: { inline_keyboard: [[
     { text: '📊 Gráfico', callback_data: `g:${id}` },
     { text: '🔔 Alerta', callback_data: `a:${id}` },
@@ -134,7 +153,7 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
 
   async function cmdAlerts(chatId, user) {
     const list = await db.userAlerts(user.id);
-    if (!list.length) return reply(chatId, T.noAlerts);
+    if (!list.length) return reply(chatId, `${T.noAlerts}\n\n${T.alertUsage(countryOf(user), await alertExample(user))}`);
     const c = countryOf(user);
     const lines = list.map((al) => `#${al.id} ${ASSETS[al.asset].name} ${al.op === '>' ? 'pase de' : 'baje de'} ${R.money(al.price, al.currency === c.currency ? c : { ...c, currencyName: al.currency })}`);
     return reply(chatId, `🔔 <b>Tus alertas</b>\n${lines.join('\n')}`, {
@@ -241,7 +260,8 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
       case 'network': return cmdNetwork(chatId, user);
       case 'alerts': return cmdAlerts(chatId, user);
       case 'alert': return createAlert(chatId, user, it.asset, it.op, it.price);
-      case 'alert_help': return reply(chatId, T.alertUsage(countryOf(user)));
+      case 'alert_help': return alertHelp(chatId, user);
+      case 'hello': return reply(chatId, T.hello(msg.from.first_name), startButtons);
       case 'settings': return cmdSettings(chatId, user);
       case 'zone': return reply(chatId, T.askZone, zoneButtons());
       case 'feedback': return askFeedback(chatId, user.id);
@@ -271,7 +291,10 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
       await db.setCountry(user.id, c.id, c.tz);
       return withCountry(c, async () => {
         await reply(chatId, T.zoneSet(c));
-        if (!user.country) return cmdPrice(chatId, { ...user, country: c.id, tz: c.tz }, 'ZEC');
+        if (!user.country) {
+          await cmdPrice(chatId, { ...user, country: c.id, tz: c.tz }, 'ZEC');
+          return reply(chatId, T.firstSteps, startButtons);
+        }
       });
     }
     return withCountry(countryOf(user), async () => {
@@ -280,7 +303,9 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
       if (kind === 'cf') return lessonCopias(chatId);
       if (kind === 'p' && ASSETS[id]) return cmdPrice(chatId, user, id);
       if (kind === 'g' && ASSETS[id]) return sendChart(chatId, user, id);
-      if (kind === 'a' && ASSETS[id]) return reply(chatId, T.alertUsage(countryOf(user)).replace('zcash', ASSETS[id].name.toLowerCase()).replace('zcash', ASSETS[id].name.toLowerCase()));
+      if (kind === 'a' && ASSETS[id]) return alertHelp(chatId, user, id);
+      if (kind === 'x' && id === 'privacy') return reply(chatId, R.privacy(), { reply_markup: { inline_keyboard: [[{ text: '🎓 Empezar el curso', callback_data: 'l:0' }]] } });
+      if (kind === 'x' && id === 'network') return cmdNetwork(chatId, user);
       if (kind === 'del') return reply(chatId, (await db.deleteAlert(user.id, Number(id))) ? T.alertDeleted(id) : T.alertNotFound);
       if (kind === 'set') {
         if (id === 'country') return reply(chatId, T.askZone, zoneButtons());
@@ -342,9 +367,8 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
       case 'start':
         if (/^[A-Za-z0-9_-]{1,64}$/.test(arg)) await db.setSource(user.id, arg.toLowerCase());
         await sendInstructions(chatId, true);
-        await reply(chatId, 'Así funciona: toca «🎓 Aprende Zcash» para la primera lección, o pregúntame lo que quieras, por ejemplo «¿qué es una dirección blindada?».', { reply_markup: { inline_keyboard: [[{ text: '📤 Compártelo con alguien', url: 'https://t.me/share/url?url=https%3A%2F%2Ft.me%2FZblindBot%3Fstart%3Damigo&text=Mira%20este%20bot%3A%20te%20ense%C3%B1a%20Zcash%20desde%20cero%20en%20espa%C3%B1ol%2C%20con%20el%20precio%20en%20tu%20moneda%20y%20alertas.%20Gratis%20y%20de%20c%C3%B3digo%20abierto.' }]] } });
         if (!user.country) return reply(chatId, T.askZone, zoneButtons());
-        return cmdPrice(chatId, user, 'ZEC');
+        return reply(chatId, T.firstSteps, startButtons);
       case 'ayuda': case 'help': return sendInstructions(chatId);
       case 'precio': return cmdPrice(chatId, user, /btc|bitcoin/i.test(arg) ? 'BTC' : 'ZEC');
       case 'grafico': return sendChart(chatId, user, /btc|bitcoin/i.test(arg) ? 'BTC' : 'ZEC');

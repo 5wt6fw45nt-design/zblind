@@ -40,7 +40,8 @@ const SMALLTALK = /^((ja|je|ji)+|gracias|vale|ok|okey|perfecto|genial|guay|bien|
 export function quickIntent(text) {
   const t = norm(text);
   if (!t) return null;
-  if (/^(hola|buenas|hey|holi|buenos dias|buenas tardes|buenas noches|ayuda|como funciona|instrucciones|que haces|comandos)$/.test(t)) return { intent: 'help' };
+  if (/^(hola|buenas|hey|holi|buenos dias|buenas tardes|buenas noches|hola que tal|que tal)$/.test(t)) return { intent: 'hello' };
+  if (/^(ayuda|como funciona|instrucciones|que haces|comandos|que es esto|para que sirves|que puedes hacer)$/.test(t)) return { intent: 'help' };
   if (SMALLTALK.test(t)) return { intent: 'smalltalk' };
   if (/\b(ajustes|configuracion|configurar)\b/.test(t)) return { intent: 'settings' };
   if (/\b(mi pais|cambiar pais|moneda|zona horaria|horario)\b/.test(t)) return { intent: 'zone' };
