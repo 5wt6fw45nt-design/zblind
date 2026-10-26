@@ -1,6 +1,6 @@
-# Contribuir a Zash · Contributing
+# Contribuir a Zblind · Contributing
 
-¡Gracias por querer mejorar Zash! / Thanks for helping improve Zash!
+¡Gracias por querer mejorar Zblind! / Thanks for helping improve Zblind!
 
 ## Principios
 - **Exactitud ante todo.** El contenido educativo (`src/lessons.js`) solo incluye hechos verificables del protocolo Zcash. Cada cambio de contenido debe citar una fuente (ZIP, documentación oficial de z.cash, ZecHub o anuncio de un equipo del ecosistema) en la descripción del pull request.

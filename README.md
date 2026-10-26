@@ -1,8 +1,8 @@
-# Zash 🛡️ Zcash en español
+# Zblind 🛡️ Zcash en español
 
-**Zash** es un bot de Telegram gratuito y de código abierto que enseña **Zcash desde cero** a hispanohablantes de España y Latinoamérica: precio en su moneda, un curso corto, una guía de privacidad, alertas y el estado de la red, con datos de la propia cadena.
+**Zblind** es un bot de Telegram gratuito y de código abierto que enseña **Zcash desde cero** a hispanohablantes de España y Latinoamérica: precio en su moneda, un curso corto, una guía de privacidad, alertas y el estado de la red, con datos de la propia cadena.
 
-👉 **Pruébalo:** [@ZashCash_bot](https://t.me/ZashCash_bot)
+👉 **Pruébalo:** [@ZblindBot](https://t.me/ZblindBot)
 
 > Sin Premium, sin pagos y sin publicidad. Información y formación, no consejo de inversión.
 
@@ -68,8 +68,8 @@ Guarda solo el ID de Telegram, el nombre de usuario, el país y las alertas. No 
 
 ## English
 
-**Zash** is a free, open-source Telegram bot that teaches **Zcash from scratch to Spanish speakers** in Spain and Latin America: ZEC price in local currencies (plus Maya Protocol's on-chain price), a 10-lesson course (including the Ironwood/NU6.3 upgrade), a privacy guide, price alerts, live shielded-supply stats from the Zcash chain, and AI-assisted Q&A grounded in verified facts. No premium tier, no payments, no investment advice. Runs on Cloudflare Workers + D1 + Workers AI (free tier).
+**Zblind** is a free, open-source Telegram bot that teaches **Zcash from scratch to Spanish speakers** in Spain and Latin America: ZEC price in local currencies (plus Maya Protocol's on-chain price), a 10-lesson course (including the Ironwood/NU6.3 upgrade), a privacy guide, price alerts, live shielded-supply stats from the Zcash chain, and AI-assisted Q&A grounded in verified facts. No premium tier, no payments, no investment advice. Runs on Cloudflare Workers + D1 + Workers AI (free tier).
 
 ## Licencia
 
-[MIT](LICENSE) · Un proyecto de riberasistemas. Zcash es una marca de sus titulares; Zash es un proyecto independiente de la comunidad.
+[MIT](LICENSE) · Un proyecto de riberasistemas. Zcash es una marca de sus titulares; Zblind es un proyecto independiente de la comunidad.
