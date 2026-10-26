@@ -69,6 +69,19 @@ const FLAGS = [
 
 // Nombres que usan los estafadores para hacerse pasar por alguien, con su web oficial (de z.cash/ecosystem)
 const NAMED = [['zodl', 'zodl.com'], ['zashi', 'zodl.com'], ['zingo', 'zingolabs.org'], ['edge', 'edge.app'], ['keystone', 'keyst.one'], ['unstoppable', 'unstoppable.money'], ['vizor', 'vizor.cash'], ['vultisig', 'vultisig.com'], ['zechub', 'zechub.wiki'], ['zcash', 'z.cash'], ['zblind', 't.me/ZblindBot']];
+const NAME_INFO = {
+  zodl: 'es una cartera de Zcash que está en la lista oficial de z.cash. Antes se llamaba Zashi. Descárgala solo desde su web o desde la tienda oficial de tu móvil.',
+  zashi: 'ahora se llama Zodl, una cartera de Zcash que está en la lista oficial de z.cash. Si alguien te ofrece «Zashi» desde otra web, desconfía.',
+  zingo: 'es una cartera de Zcash que está en la lista oficial de z.cash.',
+  edge: 'es una cartera que está en la lista oficial de z.cash.',
+  keystone: 'es una cartera física (un aparato) que está en la lista oficial de z.cash. Cómprala solo en su tienda.',
+  unstoppable: 'es una cartera que está en la lista oficial de z.cash.',
+  vizor: 'es una cartera de Zcash que está en la lista oficial de z.cash.',
+  vultisig: 'es una cartera que está en la lista oficial de z.cash.',
+  zechub: 'es la wiki de la comunidad de Zcash.',
+  zcash: 'el directorio oficial de carteras está en z.cash/ecosystem, y nadie de Zcash te escribirá por privado para ayudarte con tu cartera.',
+  zblind: 'soy yo, @ZblindBot. Nunca te escribo primero ni te pido tu frase ni dinero.',
+};
 const NAME_LABEL = { zodl: 'Zodl', zashi: 'Zashi (ahora Zodl)', zingo: 'Zingo!', edge: 'Edge', keystone: 'Keystone', unstoppable: 'Unstoppable', vizor: 'Vizor', vultisig: 'Vultisig', zechub: 'ZecHub', zcash: 'Zcash', zblind: 'Zblind' };
 
 function addressKind(a) {
@@ -127,17 +140,19 @@ export function analyze(input) {
 
   for (const [re, why] of FLAGS) if (re.test(t)) { red++; lines.push(`🚩 ${why}`); }
 
-  // Si el mensaje sospechoso se escuda en un nombre conocido, decimos cuál es la web de verdad
-  if (red) {
-    for (const [name, site] of NAMED) {
-      if (new RegExp(`\\b${name}\\b`).test(t) && !seen.has(site)) {
-        seen.add(site);
-        lines.push(`ℹ️ Usa el nombre de <b>${NAME_LABEL[name] || name}</b> para parecer de fiar. La web de verdad es <code>${site}</code>, y nadie de allí te escribirá por privado ni te pedirá tu frase.`);
-      }
-    }
+  // Nombres conocidos: si el mensaje es sospechoso, decimos que se escuda en ellos; si no, dónde está lo de verdad
+  let named = 0;
+  for (const [name, site] of NAMED) {
+    if (!new RegExp(`\\b${name}\\b`).test(t) || seen.has(site)) continue;
+    seen.add(site);
+    named++;
+    const who = NAME_LABEL[name] || name;
+    lines.push(red
+      ? `ℹ️ Usa el nombre de <b>${who}</b> para parecer de fiar. La web de verdad es <code>${site}</code>, y nadie de allí te escribirá por privado ni te pedirá tu frase.`
+      : `ℹ️ <b>${who}</b>: ${NAME_INFO[name]} Lo de verdad está en <code>${site}</code>. Cualquier otra web, app o cuenta que use ese nombre puede ser una copia.`);
   }
 
-  const verdict = red ? 'red' : ok && !unknown ? 'ok' : lines.length ? 'unknown' : 'empty';
+  const verdict = red ? 'red' : ok && !unknown ? 'ok' : unknown ? 'unknown' : named ? 'info' : lines.length ? 'unknown' : 'empty';
   return { verdict, lines };
 }
 
@@ -145,6 +160,7 @@ const HEAD = {
   red: '🚩 <b>Cuidado: esto tiene pinta de copia o de estafa.</b>',
   ok: '✅ <b>Todo lo que veo coincide con lo oficial.</b>',
   unknown: '⚪ <b>No veo señales claras de estafa, pero no puedo confirmarlo.</b>',
+  info: '🔎 <b>Esto es lo que sé:</b>',
 };
 
 export const SEAL = '🛡️ El Zblind de verdad es @ZblindBot. Nunca te escribe primero, nunca te pide tu frase de recuperación ni dinero, y su código es público.';
@@ -152,7 +168,7 @@ export const SEAL = '🛡️ El Zblind de verdad es @ZblindBot. Nunca te escribe
 export function report(input) {
   const { verdict, lines } = analyze(input);
   if (verdict === 'empty') return null;
-  return [HEAD[verdict], '', ...lines, '', verdict === 'red' ? 'No pulses enlaces, no envíes nada y no des tu frase. Si ya la diste, crea una cartera nueva y pasa allí lo que te quede cuanto antes.' : 'Si dudas, entra tú mismo a <b>z.cash/ecosystem</b> desde el navegador en vez de usar el enlace que te pasaron.', '', `<i>${SEAL}</i>`].join('\n');
+  return [HEAD[verdict], '', ...lines, '', verdict === 'red' ? 'No pulses enlaces, no envíes nada y no des tu frase. Si ya la diste, crea una cartera nueva y pasa allí lo que te quede cuanto antes.' : verdict === 'info' ? 'Para descargar una cartera, entra tú mismo a <b>z.cash/ecosystem</b> desde el navegador y sigue sus enlaces.' : 'Si dudas, entra tú mismo a <b>z.cash/ecosystem</b> desde el navegador en vez de usar el enlace que te pasaron.', '', `<i>${SEAL}</i>`].join('\n');
 }
 
 export const ASK = [

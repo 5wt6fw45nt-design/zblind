@@ -144,6 +144,8 @@ test('¿Es esto una copia?: oficial, imitaciones, señales de estafa y sello', a
   assert.equal(analyze('Envía 1 ZEC y te devolvemos el doble').verdict, 'red');
   assert.equal(analyze('https://ejemplo-tienda.com').verdict, 'unknown');
   assert.equal(analyze('hola qué tal').verdict, 'empty');
+  assert.equal(analyze('zodl').verdict, 'info');
+  assert.match(report('zodl'), /zodl\.com/);
   assert.match(report('https://zodl-wallet.com'), /no es su web oficial[\s\S]*@ZblindBot/);
   assert.match(analyze('u1' + 'q'.repeat(100)).lines.join(), /unificada/);
 });
