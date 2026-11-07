@@ -125,6 +125,28 @@ export const LESSONS = [
   },
 ];
 
+/** Lección extra: dólares digitales y compra entre particulares. Solo explica; no recomienda plataformas ni inversiones. */
+export const LESSON_DOLARES = {
+  title: '💵 Lección extra: dólares digitales y compra entre particulares',
+  text: [
+    'En muchos países de Latinoamérica la gente usa <b>dólares digitales</b> (USDT, USDC) para protegerse de la inflación. No son lo mismo que Zcash:',
+    '',
+    '• <b>Un dólar digital</b> lo emite una empresa y vale siempre cerca de un dólar. Esa empresa puede <b>congelar</b> fichas, y casi siempre se mueven por redes públicas donde cualquiera ve importes y direcciones.',
+    '• <b>ZEC</b> no es un dólar: su precio <b>sube y baja</b>. A cambio, nadie puede congelarlo en tu cartera y, si está blindado, nadie ve cuánto tienes ni a quién pagas.',
+    '',
+    '<b>Si compras o vendes entre particulares (P2P)</b>',
+    '1. <b>No sueltes nada hasta ver el dinero en tu cuenta.</b> Una captura de pantalla se falsifica en un minuto.',
+    '2. <b>El nombre de quien paga tiene que ser el de tu contraparte.</b> Si paga un tercero, puede ser dinero robado y te bloquean la cuenta a ti.',
+    '3. <b>No salgas de la plataforma</b> para «hablar por privado» ni pagar por otra vía.',
+    '4. <b>Desconfía del precio demasiado bueno</b> y de las prisas.',
+    '5. Tu frase de recuperación, <b>nunca</b>, la pida quien la pida.',
+    '',
+    'Zblind no recomienda plataformas ni te dice qué comprar. Mira también lo que dice la ley de tu país.',
+    '',
+    '¿Te han pasado un enlace o una cuenta? Pulsa «🔎 ¿Es esto una copia?» y pégamelo.',
+  ],
+};
+
 export const PRIVACY_GUIDE = [
   '🛡️ <b>Guía rápida de privacidad con Zcash</b>',
   '',
@@ -146,5 +168,5 @@ Direcciones transparentes (empiezan por t, públicas como en Bitcoin) y blindada
 Memo cifrado de hasta 512 bytes en pagos blindados. Claves de visualización (viewing keys) para enseñar movimientos a terceros sin dar acceso a los fondos.
 Carteras de autocustodia con soporte blindado: lista oficial en z.cash/ecosystem (por ejemplo Zodl, antes llamada Zashi, web zodl.com; Zingo!, Edge, Unstoppable, Vizor, Keystone). Estafas habituales: falsos soportes que escriben por privado, webs y apps que imitan carteras, «airdrops» y promesas de devolver el doble; nadie legítimo pide la frase de recuperación. En español, la comunidad Zcash en Español publica artículos en zcashesp.com, vídeos en YouTube (Zcash en Español y Zcast) y tiene el canal de Telegram @zcashesp y el grupo @zcashespchat. Zblind tiene un botón «🔎 ¿Es esto una copia?» para comprobar enlaces, cuentas y mensajes. Frase de recuperación: nunca compartirla.
 Ironwood (NU6.3): nuevo fondo blindado activado el 28 de julio de 2026 (bloque 3.428.143) tras encontrarse en mayo de 2026 un fallo en el circuito de Orchard; reutiliza las acciones de Orchard y Halo 2 con su propio árbol y contabilidad, y permite verificar mejor el total de ZEC. Orchard queda restringido: los fondos pueden salir (turnstile) y se recomienda migrarlos a Ironwood con una cartera actualizada; la migración no es automática.
-Parte de la emisión financia el desarrollo y ayudas a la comunidad (Zcash Community Grants).
+Dólares digitales (stablecoins como USDT o USDC): los emite una empresa, valen cerca de un dólar, la emisora puede congelar fichas y suelen moverse por redes públicas; ZEC no es estable (su precio varía) y nadie puede congelarlo en una cartera propia. Compra entre particulares (P2P): no liberar nada hasta ver el dinero en la cuenta (las capturas se falsifican), el pagador debe ser la contraparte (pagos de terceros pueden ser dinero robado), no salir de la plataforma, desconfiar de precios demasiado buenos y de las prisas. Zblind tiene una lección extra sobre esto (/dolares).\nParte de la emisión financia el desarrollo y ayudas a la comunidad (Zcash Community Grants).
 UE: el reglamento contra el blanqueo (AMLR) prevé que desde julio de 2027 los proveedores de criptoactivos no gestionen criptomonedas con anonimato reforzado; la tenencia en carteras propias no se prohíbe.`;

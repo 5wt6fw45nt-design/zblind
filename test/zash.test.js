@@ -210,6 +210,21 @@ test('contenido de la comunidad: comando, texto libre y botón; «nodos de la co
   assert.match(s.last(7), /Zcash en Español/);
 });
 
+test('lección extra de dólares digitales: comando, texto libre y botones', async () => {
+  const s = setup();
+  await s.msg(8, '/start');
+  await s.msg(8, '/dolares');
+  assert.match(s.last(8), /dólares digitales/);
+  assert.match(s.last(8), /No sueltes nada hasta ver el dinero/);
+  await s.msg(8, '¿es mejor tener usdt o zcash?');
+  assert.match(s.last(8), /Lección extra: dólares digitales/);
+  await s.msg(8, 'como compro zcash en venezuela');
+  assert.match(s.last(8), /Cómo conseguir ZEC/);
+  assert.ok(s.sent.at(-1).reply_markup.inline_keyboard.flat().some((b) => b.callback_data === 'dd:0'));
+  await s.tap(8, 'dd:0');
+  assert.match(s.last(8), /compra entre particulares/);
+});
+
 test('el botón de copias espera lo que pegues y luego responde; la lección extra existe', async () => {
   const s = setup();
   await s.msg(1, '/start');

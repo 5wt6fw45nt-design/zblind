@@ -1,7 +1,7 @@
 // Conversación de Zblind: botones, texto libre (reglas + IA), curso, alertas, ajustes y opinión. Sin pagos.
 
 import { ASSETS, COUNTRIES, countryById, countryOf } from './config.js';
-import { LESSONS } from './lessons.js';
+import { LESSONS, LESSON_DOLARES } from './lessons.js';
 import * as R from './render.js';
 import { T } from './render.js';
 import { madrid } from './time.js';
@@ -229,6 +229,10 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
     reply_markup: { inline_keyboard: [[{ text: '🔎 ¿Es esto una copia?', callback_data: 'ck:0' }], [{ text: '📚 Índice del curso', callback_data: 'l:idx' }]] },
   });
 
+  const lessonDolares = (chatId) => reply(chatId, [`<b>${LESSON_DOLARES.title}</b>`, '', ...LESSON_DOLARES.text].join('\n'), {
+    reply_markup: { inline_keyboard: [[{ text: '🔎 ¿Es esto una copia?', callback_data: 'ck:0' }], [{ text: '🎓 Cómo conseguir ZEC', callback_data: 'l:4' }, { text: '📚 Índice del curso', callback_data: 'l:idx' }]] },
+  });
+
   const copiaReply = (chatId, text) => {
     const r = C.report(text);
     return reply(chatId, r || C.NOTHING, { reply_markup: { inline_keyboard: [[{ text: '🕵️ Cómo detectar copias', callback_data: 'cf:0' }]] } });
@@ -288,6 +292,7 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
       case 'smalltalk': return reply(chatId, T.smalltalk);
       case 'copia': return askCopia(chatId, user.id);
       case 'community': return reply(chatId, R.community().text, R.community().extra);
+      case 'dollars': return lessonDolares(chatId);
     }
     // Pregunta libre: la responde la IA (con cupo diario)
     const left = await db.consumeUse(user.id, madrid(now, countryOf(user).tz).date, cfg.aiQuestionsPerDay);
@@ -321,6 +326,7 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
       if (kind === 'l') return id === 'idx' ? reply(chatId, R.lessonIndex().text, R.lessonIndex().extra) : sendLesson(chatId, user, Number(id));
       if (kind === 'ck') return askCopia(chatId, user.id);
       if (kind === 'cf') return lessonCopias(chatId);
+      if (kind === 'dd') return lessonDolares(chatId);
       if (kind === 'p' && ASSETS[id]) return cmdPrice(chatId, user, id);
       if (kind === 'g' && ASSETS[id]) return sendChart(chatId, user, id);
       if (kind === 'a' && ASSETS[id]) return alertHelp(chatId, user, id);
@@ -406,6 +412,7 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
       case 'copia': return arg ? copiaReply(chatId, arg) : askCopia(chatId, user.id);
       case 'copias': return lessonCopias(chatId);
       case 'comunidad': return reply(chatId, R.community().text, R.community().extra);
+      case 'dolares': return lessonDolares(chatId);
       case 'oficial': return reply(chatId, C.SEAL);
       case 'terminos': case 'privacy': return reply(chatId, T.terms);
       case 'borrar_mis_datos':
@@ -431,6 +438,7 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
     ['copia', '¿Es esto una copia? Compruébalo'],
     ['copias', 'Cómo detectar copias falsas'],
     ['comunidad', 'Vídeos y artículos de Zcash en Español'],
+    ['dolares', 'Dólares digitales y compra entre particulares'],
     ['ajustes', 'Tu país, tu moneda y tus avisos'],
     ['opinion', 'Cuéntanos qué mejorar'],
     ['ayuda', 'Cómo funciona'],

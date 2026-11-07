@@ -92,7 +92,7 @@ export function lessonButtons(i) {
   // En la última: guía de privacidad y pedir opinión, que es lo que más nos ayuda a mejorar
   const end = i === LESSONS.length - 1
     ? [[{ text: '🛡️ Guía de privacidad', callback_data: 'x:privacy' }], [{ text: '🎥 Sigue con vídeos y artículos de la comunidad', callback_data: 'x:comunidad' }], [{ text: '💬 ¿Qué te ha parecido? Cuéntamelo', callback_data: 'set:feedback' }]]
-    : [];
+    : i === 4 ? [[{ text: '💵 Dólares digitales y compra entre particulares', callback_data: 'dd:0' }]] : [];
   return { reply_markup: { inline_keyboard: [row, ...end, [{ text: '❓ Tengo una duda', callback_data: 'x:duda' }, { text: '📚 Índice del curso', callback_data: 'l:idx' }]].filter((r) => r.length) } };
 }
 /** Contenido de la comunidad hispana de Zcash (Zcash en Español), para seguir aprendiendo fuera del bot. */
@@ -109,7 +109,7 @@ export const community = () => ({
 
 export const lessonIndex = () => ({
   text: '📚 <b>Curso «Zcash desde cero»</b>\n\nToca una lección. Más abajo tienes la guía de privacidad y los datos de la red.',
-  extra: { reply_markup: { inline_keyboard: [...LESSONS.map((l, i) => [{ text: l.title, callback_data: `l:${i}` }]), [{ text: '🕵️ Extra: cómo detectar copias falsas', callback_data: 'cf:0' }], [{ text: '🎥 Vídeos y artículos de la comunidad', callback_data: 'x:comunidad' }], [{ text: '🛡️ Guía de privacidad', callback_data: 'x:privacy' }, { text: '🌐 Red Zcash', callback_data: 'x:network' }]] } },
+  extra: { reply_markup: { inline_keyboard: [...LESSONS.map((l, i) => [{ text: l.title, callback_data: `l:${i}` }]), [{ text: '🕵️ Extra: cómo detectar copias falsas', callback_data: 'cf:0' }], [{ text: '💵 Extra: dólares digitales y compra entre particulares', callback_data: 'dd:0' }], [{ text: '🎥 Vídeos y artículos de la comunidad', callback_data: 'x:comunidad' }], [{ text: '🛡️ Guía de privacidad', callback_data: 'x:privacy' }, { text: '🌐 Red Zcash', callback_data: 'x:network' }]] } },
 });
 export const privacy = () => PRIVACY_GUIDE.join('\n');
 

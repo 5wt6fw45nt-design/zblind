@@ -58,6 +58,8 @@ export function quickIntent(text) {
   // Precio en otra moneda: «¿y en pesos mexicanos?», «¿cuánto es en dólares?»
   const cur = t.length < 60 && /\ben\b/.test(t) && !/\b(pasa|baja|sube|cae|avisa)/.test(t) ? currencyIn(t) : null;
   if (cur && /^(y |precio|cuanto|a cuanto|cotizacion|zcash|zec|bitcoin|btc|en )/.test(t)) return { intent: 'price', asset: assetIn(t), ...cur };
+  // Dólares digitales y compra entre particulares: lección extra
+  if (/\b(usdt|usdc|tether|stablecoins?|monedas? estables?|dolar(es)? digital(es)?|criptodolar(es)?|p2p|entre particulares)\b/.test(t)) return { intent: 'dollars' };
   // Comprar o conseguir ZEC: la lección 5 lo explica sin recomendar ningún sitio
   if (/\b(como|donde|de donde)\b.*\b(compro|comprar|consigo|conseguir|obtener|obtengo|adquirir)\b/.test(t)) return { intent: 'lesson', n: 4 };
   if (/\bno (lo )?entiendo\b|\bmas facil\b|\bexplica(me)? mejor\b|\bno me entero\b/.test(t)) return { intent: 'simpler' };
