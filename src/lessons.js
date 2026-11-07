@@ -33,7 +33,7 @@ export const LESSONS = [
       '',
       'Sin privacidad, quien vea tu dirección sabe cuánto tienes, cuánto cobras y en qué gastas: tu empresa, tu casero o un ladrón.',
       '',
-      'Y si alguna vez lo necesitas, Zcash te deja <b>enseñar tus movimientos a quien tú elijas</b> (tu asesor, tu gestor o Hacienda) con una <b>clave de visualización</b>, sin dar acceso a tu dinero.',
+      'Y si alguna vez lo necesitas, Zcash te deja <b>enseñar tus movimientos a quien tú elijas</b> (tu contador o la autoridad fiscal de tu país) con una <b>clave de visualización</b>, sin dar acceso a tu dinero.',
     ],
   },
   {

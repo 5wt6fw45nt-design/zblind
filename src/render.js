@@ -41,7 +41,7 @@ export function priceCard({ asset, rates, chg, country, maya, btcRatio }) {
   const lines = [`<b>${asset.name} (${asset.id})</b>`, ''];
   lines.push(`💰 <b>${money(local, country)}</b>`);
   if (country.currency !== 'USD') lines.push(`💵 ${fmt(rates.USD, dec(rates.USD))} dólares`);
-  if (country.also && rates[country.also]) lines.push(`≈ ${fmt(rates[country.also], 0)} ${country.also === 'VES' ? 'bolívares' : country.also}`);
+  if (country.also && rates[country.also]) lines.push(`≈ ${fmt(rates[country.also], 0)} ${country.also === 'VES' ? 'bolívares (tasa oficial del BCV)' : country.also}`);
   if (chg != null) lines.push(`${chg >= 0 ? '📈' : '📉'} ${pct(chg)} en 24 h`);
   if (asset.id === 'ZEC' && btcRatio) lines.push(`₿ 1 ZEC = ${fmt(btcRatio, 6)} BTC`);
   if (asset.id === 'ZEC' && maya) lines.push(`⛓️ En Maya Protocol (descentralizado): ${fmt(maya.usd, 2)} dólares`);
@@ -52,7 +52,7 @@ export function priceCard({ asset, rates, chg, country, maya, btcRatio }) {
 /** Nodos públicos en línea: los que más tiempo llevan funcionando primero. */
 export function nodesCard(n, ts, tz) {
   const lines = ['🛰️ <b>Nodos públicos de Zcash</b>', '',
-    'Son los servidores a los que se conectan las carteras ligeras. Si el tuyo va lento o falla, puedes cambiarlo en los ajustes de tu cartera (Zingo e Ywallet lo permiten).', ''];
+    'Son los servidores a los que se conectan las carteras ligeras. Si el tuyo va lento o falla, puedes cambiarlo en los ajustes de tu cartera (algunas carteras de la lista oficial, como Zingo!, lo permiten).', ''];
   for (const s of n.list.slice(0, 12)) {
     lines.push(`${s.behind > 10 ? '🟠' : '🟢'} <code>${esc(s.host)}</code> · ${fmt(s.uptime * 100, 0)} %${s.community ? ' · 👥' : ''}`);
   }
@@ -172,7 +172,7 @@ export const T = {
     `<i>Gratis y de código abierto. ${DISCLAIMER}</i>`,
   ].join('\n'),
   firstSteps: '👉 <b>¿Por dónde empiezo?</b>\n\nSi Zcash te suena a chino, empieza por la primera lección: se lee en un minuto.',
-  askDoubt: '❓ Escríbeme tu duda tal como te salga, por ejemplo «¿y si pierdo el móvil?» o «¿qué es blindar?», y te la explico. Si una lección no se entiende, escribe «no lo entiendo» y te la cuento más fácil.',
+  askDoubt: '❓ Escríbeme tu duda tal como te salga, por ejemplo «¿y si pierdo el teléfono?» o «¿qué es blindar?», y te la explico. Si una lección no se entiende, escribe «no lo entiendo» y te la cuento más fácil.',
   hello: (name) => `¡Hola${name ? `, ${esc(name)}` : ''}! 👋 ¿En qué te ayudo?`,
   askZone: '¿Desde qué país me lees? Así te doy el precio en tu moneda y el resumen a tu hora.',
   zoneSet: (c) => `Hecho: ${c.label}. Precios en ${c.currencyName} y resumen a tu hora. Lo cambias en ⚙️ Ajustes.`,
