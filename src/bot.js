@@ -8,10 +8,10 @@ import { madrid } from './time.js';
 import { message } from './telegram.js';
 import { withCountry } from './region.js';
 import { quickIntent, answer } from './nlu.js';
-import { fetchRates, fetchCandles, fetchMaya, fetchNetwork } from './market.js';
+import { fetchRates, fetchCandles, fetchMaya, fetchNetwork, fetchNodes } from './market.js';
 import * as C from './copias.js';
 
-export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { fetchRates, fetchCandles, fetchMaya, fetchNetwork }, http = (...a) => fetch(...a) }) {
+export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { fetchRates, fetchCandles, fetchMaya, fetchNetwork, fetchNodes }, http = (...a) => fetch(...a) }) {
   const reply = (chatId, text, extra = {}) => api.call('sendMessage', message(chatId, text, extra));
   const notifyAdmins = (text) => Promise.allSettled(cfg.adminIds.map((id) => reply(id, text)));
   const fresh = (x, ms) => x && clock() - x.at < ms;
@@ -82,6 +82,20 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
     return reply(chatId, R.priceCard({ asset: ASSETS[id], rates, chg, country, maya, btcRatio }), assetButtons(id));
   }
 
+  async function cmdNodes(chatId, user) {
+    let n = await kvJson('nodos');
+    if (!fresh(n, 30 * 60_000)) {
+      try {
+        n = { ...(await data.fetchNodes()), at: clock() };
+        await db.kvSet('nodos', JSON.stringify(n));
+      } catch (e) {
+        console.error('[nodos]', e.message);
+      }
+    }
+    if (!n?.list?.length) return reply(chatId, T.noNodes);
+    return reply(chatId, R.nodesCard(n, n.at, countryOf(user).tz));
+  }
+
   async function cmdNetwork(chatId, user) {
     const n = await network();
     if (!n?.height) return reply(chatId, T.noNetwork);
@@ -121,9 +135,13 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
 
   // --- curso ---
 
+  // Quien aún no ha abierto ninguna lección entra directo a la primera
+  const firstSteps = (chatId, user) => (user.seen ? reply(chatId, T.firstSteps, startButtons) : sendLesson(chatId, user, 0));
+
   async function sendLesson(chatId, user, i) {
     const n = Math.max(0, Math.min(LESSONS.length - 1, i));
     if (n > (user.lesson ?? 0)) await db.setLesson(user.id, n);
+    await db.setSeen(user.id, n + 1);
     return reply(chatId, R.lesson(n), R.lessonButtons(n));
   }
 
@@ -258,6 +276,7 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
       case 'learn': return user.lesson > 0 && !it.fromStart ? reply(chatId, R.lessonIndex().text, R.lessonIndex().extra) : sendLesson(chatId, user, 0);
       case 'privacy': return reply(chatId, R.privacy(), { reply_markup: { inline_keyboard: [[{ text: '🎓 Empezar el curso', callback_data: 'l:0' }]] } });
       case 'network': return cmdNetwork(chatId, user);
+      case 'nodes': return cmdNodes(chatId, user);
       case 'alerts': return cmdAlerts(chatId, user);
       case 'alert': return createAlert(chatId, user, it.asset, it.op, it.price);
       case 'alert_help': return alertHelp(chatId, user);
@@ -268,6 +287,7 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
       case 'help': return sendInstructions(chatId);
       case 'smalltalk': return reply(chatId, T.smalltalk);
       case 'copia': return askCopia(chatId, user.id);
+      case 'community': return reply(chatId, R.community().text, R.community().extra);
     }
     // Pregunta libre: la responde la IA (con cupo diario)
     const left = await db.consumeUse(user.id, madrid(now, countryOf(user).tz).date, cfg.aiQuestionsPerDay);
@@ -293,7 +313,7 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
         await reply(chatId, T.zoneSet(c));
         if (!user.country) {
           await cmdPrice(chatId, { ...user, country: c.id, tz: c.tz }, 'ZEC');
-          return reply(chatId, T.firstSteps, startButtons);
+          return firstSteps(chatId, user);
         }
       });
     }
@@ -306,6 +326,8 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
       if (kind === 'a' && ASSETS[id]) return alertHelp(chatId, user, id);
       if (kind === 'x' && id === 'privacy') return reply(chatId, R.privacy(), { reply_markup: { inline_keyboard: [[{ text: '🎓 Empezar el curso', callback_data: 'l:0' }]] } });
       if (kind === 'x' && id === 'network') return cmdNetwork(chatId, user);
+      if (kind === 'x' && id === 'comunidad') return reply(chatId, R.community().text, R.community().extra);
+      if (kind === 'x' && id === 'duda') return reply(chatId, T.askDoubt);
       if (kind === 'del') return reply(chatId, (await db.deleteAlert(user.id, Number(id))) ? T.alertDeleted(id) : T.alertNotFound);
       if (kind === 'set') {
         if (id === 'country') return reply(chatId, T.askZone, zoneButtons());
@@ -324,7 +346,8 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
     if (cmd === 'stats') {
       const s = await db.stats(now);
       const src = (await db.sources()).map((r) => `${r.source} ${r.n}`).join(' · ');
-      return reply(chatId, `Usuarios ${s.users} (+${s.week} esta semana) · bloqueados ${s.blocked}\nAlertas ${s.alerts} · cola ${s.outbox}\nOrigen: ${R.esc(src)}`);
+      const f = await db.funnel(LESSONS.length);
+      return reply(chatId, `Usuarios ${s.users} (+${s.week} esta semana) · bloqueados ${s.blocked}\nAlertas ${s.alerts} · cola ${s.outbox}\nOrigen: ${R.esc(src)}\nCurso: empezaron ${f.started} · lección 2 ${f.second} · acabaron ${f.finished}\nVolvieron otro día ${f.back} · con alerta ${f.alerts}`);
     }
     if (cmd === 'responder') {
       const m = arg.match(/^(\d+)\s+([\s\S]+)$/);
@@ -368,19 +391,21 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
         if (/^[A-Za-z0-9_-]{1,64}$/.test(arg)) await db.setSource(user.id, arg.toLowerCase());
         await sendInstructions(chatId, true);
         if (!user.country) return reply(chatId, T.askZone, zoneButtons());
-        return reply(chatId, T.firstSteps, startButtons);
+        return firstSteps(chatId, user);
       case 'ayuda': case 'help': return sendInstructions(chatId);
       case 'precio': return cmdPrice(chatId, user, /btc|bitcoin/i.test(arg) ? 'BTC' : 'ZEC');
       case 'grafico': return sendChart(chatId, user, /btc|bitcoin/i.test(arg) ? 'BTC' : 'ZEC');
-      case 'aprende': case 'curso': return sendLesson(chatId, user, Number(arg) ? Number(arg) - 1 : user.lesson ?? 0);
+      case 'aprende': case 'curso': return sendLesson(chatId, user, Number(arg) ? Number(arg) - 1 : user.seen ?? 0);
       case 'privacidad': return reply(chatId, R.privacy());
       case 'red': return cmdNetwork(chatId, user);
+      case 'nodos': return cmdNodes(chatId, user);
       case 'alertas': return cmdAlerts(chatId, user);
       case 'ajustes': return cmdSettings(chatId, user);
       case 'pais': case 'zona': case 'moneda': return reply(chatId, T.askZone, zoneButtons());
       case 'opinion': return askFeedback(chatId, user.id);
       case 'copia': return arg ? copiaReply(chatId, arg) : askCopia(chatId, user.id);
       case 'copias': return lessonCopias(chatId);
+      case 'comunidad': return reply(chatId, R.community().text, R.community().extra);
       case 'oficial': return reply(chatId, C.SEAL);
       case 'terminos': case 'privacy': return reply(chatId, T.terms);
       case 'borrar_mis_datos':
@@ -400,10 +425,12 @@ export function createBot({ api, db, cfg, clock = Date.now, ai = null, data = { 
     ['aprende', 'Curso «Zcash desde cero»'],
     ['privacidad', 'Guía rápida de privacidad'],
     ['red', 'La red Zcash ahora'],
+    ['nodos', 'Nodos públicos de la comunidad'],
     ['grafico', 'Gráfico de 72 horas'],
     ['alertas', 'Tus alertas de precio'],
     ['copia', '¿Es esto una copia? Compruébalo'],
     ['copias', 'Cómo detectar copias falsas'],
+    ['comunidad', 'Vídeos y artículos de Zcash en Español'],
     ['ajustes', 'Tu país, tu moneda y tus avisos'],
     ['opinion', 'Cuéntanos qué mejorar'],
     ['ayuda', 'Cómo funciona'],

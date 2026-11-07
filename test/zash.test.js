@@ -28,6 +28,10 @@ function setup(opts = {}) {
     fetchRates: async (id) => (id === 'ZEC' ? { USD: zec, EUR: zec * 0.9, MXN: zec * 18.5, BTC: zec / 80000 } : { USD: 80000, EUR: 72000, MXN: 1480000 }),
     fetchCandles: async () => Array.from({ length: 80 }, (_, i) => ({ t: T0 - (80 - i) * 3600e3, o: 950, h: 960, l: 940, c: i === 79 ? zec : 950 })),
     fetchMaya: async () => ({ usd: zec * 1.001, depthZec: 2000 }),
+    fetchNodes: async () => ({ top: 100, tor: 1, list: [
+      { host: 'zec-node.cakewallet.com:443', community: true, uptime: 0.998, behind: 0 },
+      { host: 'lwd.ejemplo.xyz:443', community: true, uptime: 0.9, behind: 50 },
+    ] }),
     fetchNetwork: async () => ({ height: 3517634, supply: 16985936, pools: { transparent: 11954930, sapling: 475917, orchard: 357805, sprout: 22309, lockbox: 69606, ironwood: 4105365 }, shielded: 4961396, shieldedPct: 0.292 }),
   };
   let now = T0;
@@ -72,6 +76,8 @@ test('usuario nuevo de México: instrucciones fijadas, país, precio en pesos, c
   assert.match(s.last(1), /[Dd]esde qué país/);
   await s.tap(1, 'tz:mx');
   assert.match(s.to(1).at(-2).text, /Zcash \(ZEC\)[\s\S]*18,500 pesos mexicanos[\s\S]*Maya Protocol/);
+  assert.match(s.last(1), /1\. ¿Qué es Zcash\?/);
+  await s.msg(1, '/start');
   assert.match(s.last(1), /Por dónde empiezo/);
   await s.msg(1, '🎓 Aprende Zcash');
   assert.match(s.last(1), /1\. ¿Qué es Zcash\?/);
@@ -136,6 +142,8 @@ test('¿Es esto una copia?: oficial, imitaciones, señales de estafa y sello', a
   assert.equal(analyze('https://zodl.com/download').verdict, 'ok');
   assert.equal(analyze('mira www.z.cash/ecosystem').verdict, 'ok');
   assert.equal(analyze('@ZblindBot').verdict, 'ok');
+  assert.equal(analyze('https://zcashesp.com/blog').verdict, 'ok');
+  assert.equal(analyze('@zcashespchat').verdict, 'ok');
   for (const fake of ['https://zodl-wallet.com', 'zodI.com', 'https://z-cash.org/airdrop', 'zashi-app.net', 'https://zcash-wallet.io']) {
     assert.equal(analyze(fake).verdict, 'red', fake);
   }
@@ -151,6 +159,57 @@ test('¿Es esto una copia?: oficial, imitaciones, señales de estafa y sello', a
   assert.match(analyze('u1' + 'q'.repeat(100)).lines.join(), /unificada/);
 });
 
+test('recorrido: la lección siguiente llega en el resumen, /aprende sigue por ahí y /stats lo cuenta', async () => {
+  const s = setup();
+  await s.msg(2, '/start');
+  await s.tap(2, 'tz:es');
+  await s.tap(2, 'l:1');
+  s.at(Date.UTC(2026, 9, 15, 7, 5));
+  await s.tick();
+  assert.match(s.last(2), /Te toca: <b>3\./);
+  await s.msg(2, '/aprende');
+  assert.match(s.last(2), /\(3\//);
+  await s.tap(2, `l:${LESSONS.length - 1}`);
+  s.at(Date.UTC(2026, 9, 16, 7, 5));
+  await s.msg(2, 'hola');
+  await s.tick();
+  assert.doesNotMatch(s.last(2), /Te toca/);
+  await s.msg(999, '/stats');
+  assert.match(s.last(999), /empezaron 1 · lección 2 1 · acabaron 1/);
+  assert.match(s.last(999), /Volvieron otro día 1/);
+});
+
+test('nodos de la comunidad: botón, texto libre y comando; el teclado deja lo demás en el menú', async () => {
+  const s = setup();
+  await s.msg(4, '/start');
+  const kb = s.sent.find((m) => m.reply_markup?.keyboard)?.reply_markup.keyboard.flat().map((b) => b.text ?? b);
+  assert.ok(kb.includes('🛰️ Nodos') && kb.includes('🛡️ Red Zcash'));
+  assert.ok(!kb.includes('⚙️ Ajustes'));
+  await s.msg(4, '🛰️ Nodos');
+  assert.match(s.last(4), /zec-node\.cakewallet\.com:443<\/code> · 100 % · 👥/);
+  assert.match(s.last(4), /🟠 <code>lwd\.ejemplo/);
+  assert.match(s.last(4), /1 por Tor/);
+  await s.msg(4, '¿qué nodos hay?');
+  assert.match(s.last(4), /Nodos públicos/);
+  await s.msg(4, '🔔 Mis alertas');
+  assert.doesNotMatch(s.last(4), /Nodos públicos/, 'los botones antiguos siguen funcionando');
+});
+
+test('contenido de la comunidad: comando, texto libre y botón; «nodos de la comunidad» sigue yendo a nodos', async () => {
+  const s = setup();
+  await s.msg(7, '/start');
+  await s.msg(7, '/comunidad');
+  assert.match(s.last(7), /Zcash en Español/);
+  const urls = s.sent.at(-1).reply_markup.inline_keyboard.flat().map((b) => b.url);
+  assert.ok(urls.includes('https://zcashesp.com/blog/') && urls.includes('https://www.youtube.com/@zcashesp'));
+  await s.msg(7, '¿hay vídeos en youtube para aprender más?');
+  assert.match(s.last(7), /Sigue aprendiendo con la comunidad/);
+  await s.msg(7, 'los nodos de la comunidad');
+  assert.match(s.last(7), /Nodos públicos/);
+  await s.tap(7, 'x:comunidad');
+  assert.match(s.last(7), /Zcash en Español/);
+});
+
 test('el botón de copias espera lo que pegues y luego responde; la lección extra existe', async () => {
   const s = setup();
   await s.msg(1, '/start');
@@ -164,4 +223,17 @@ test('el botón de copias espera lo que pegues y luego responde; la lección ext
   assert.match(s.last(1), /web oficial de la cartera Zodl/);
   await s.tap(1, 'cf:0');
   assert.match(s.last(1), /cómo detectar copias falsas[\s\S]*Nadie de verdad te escribe primero/);
+});
+
+test('lecciones: botón de duda en todas; al final, guía de privacidad y opinión', async () => {
+  const { lessonButtons } = await import('../src/render.js');
+  const flat = (i) => lessonButtons(i).reply_markup.inline_keyboard.flat().map((b) => b.callback_data);
+  assert.ok(flat(0).includes('x:duda'));
+  assert.ok(!flat(0).includes('set:feedback'));
+  const last = flat(LESSONS.length - 1);
+  assert.ok(last.includes('x:privacy') && last.includes('set:feedback') && last.includes('x:duda'));
+  const s = setup();
+  await s.msg(1, '/start');
+  await s.tap(1, 'x:duda');
+  assert.match(s.last(1), /Escríbeme tu duda/);
 });

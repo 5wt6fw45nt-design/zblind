@@ -70,10 +70,13 @@ export default {
     // El reloj (Worker ribera-reloj) llama aquí cada minuto por un service binding: sustituye al cron propio.
     if (url.pathname === '/tick' && req.method === 'POST') {
       if (!env.RELOJ_SECRET || req.headers.get('x-reloj-secret') !== env.RELOJ_SECRET) return new Response('forbidden', { status: 403 });
-      const { cfg, db, api, engine } = build(env);
+      const { cfg, db, api, engine, bot } = build(env);
       await db.kvSet('last_tick', Math.floor(Date.now() / 600_000) * 600_000); // a 10 min: una escritura cada 10 min, no cada minuto
       const used = await engine.tick(Date.now());
       const sent = await drainOutbox(api, db, cfg.subrequestBudget - used);
+      // El menú de comandos se pone al día solo tras cada despliegue que lo cambie
+      const menu = JSON.stringify(bot.commands);
+      if ((await db.kvGet('menu')) !== menu && (await api.call('setMyCommands', { commands: bot.commands }).catch(() => null))) await db.kvSet('menu', menu);
       return Response.json({ used, sent });
     }
 

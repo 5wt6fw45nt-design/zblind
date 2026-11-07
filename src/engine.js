@@ -95,7 +95,7 @@ export function createEngine({ db, cfg, data = { fetchRates, fetchCandles, fetch
         const c = countryOf(u);
         if (!due.has(c.tz)) continue;
         if (!cache.has(c.id)) cache.set(c.id, withCountry(c, () => R.daily({ country: c, rates: px.ZEC?.rates, chg, network: net, tip })));
-        out.push([u.id, cache.get(c.id)]);
+        out.push([u.id, cache.get(c.id) + R.nextLesson(u.seen)]);
       }
       log.info?.(`[resumen] ${[...due].join(',')} → ${out.length}`);
     }

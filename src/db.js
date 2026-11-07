@@ -27,9 +27,9 @@ export function createDb(d1) {
   return {
     async upsertUser(from, now) {
       await run(
-        `INSERT INTO users (id, username, first_name, created_at) VALUES (?, ?, ?, ?)
-         ON CONFLICT(id) DO UPDATE SET username = excluded.username, first_name = excluded.first_name, blocked = 0`,
-        from.id, from.username ?? null, from.first_name ?? null, now,
+        `INSERT INTO users (id, username, first_name, created_at, last_day) VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET username = excluded.username, first_name = excluded.first_name, blocked = 0, last_day = excluded.last_day`,
+        from.id, from.username ?? null, from.first_name ?? null, now, new Date(now).toISOString().slice(0, 10),
       );
       return this.getUser(from.id);
     },
@@ -37,6 +37,7 @@ export function createDb(d1) {
     setCountry: (id, country, tz) => run('UPDATE users SET country = ?, tz = ? WHERE id = ?', country, tz, id),
     setDaily: (id, on) => run('UPDATE users SET daily = ? WHERE id = ?', on ? 1 : 0, id),
     setLesson: (id, n) => run('UPDATE users SET lesson = ? WHERE id = ?', n, id),
+    setSeen: (id, n) => run('UPDATE users SET seen = ? WHERE id = ? AND seen < ?', n, id, n),
     setSource: (id, source) => run('UPDATE users SET source = ? WHERE id = ? AND source IS NULL', source, id),
     markBlocked: (id) => run('UPDATE users SET blocked = 1 WHERE id = ?', id),
     /** Gasta una pregunta a la IA del cupo diario. Devuelve las que quedan (-1 si no quedaba ninguna). */
@@ -47,8 +48,16 @@ export function createDb(d1) {
       await run('UPDATE users SET uses_date = ?, uses = ? WHERE id = ?', date, used + 1, id);
       return limit - used - 1;
     },
-    dailyUsers: () => all('SELECT id, tz, country FROM users WHERE blocked = 0 AND daily = 1'),
+    dailyUsers: () => all('SELECT id, tz, country, seen FROM users WHERE blocked = 0 AND daily = 1'),
     sources: () => all("SELECT COALESCE(source, 'directo') AS source, COUNT(*) AS n FROM users GROUP BY 1 ORDER BY n DESC"),
+    /** Dónde se queda la gente: empezó el curso, llegó a la lección 2, lo acabó, volvió otro día, creó una alerta. */
+    async funnel(lessons) {
+      const u = await first(
+        `SELECT SUM(seen > 0) AS started, SUM(seen > 1) AS second, SUM(seen >= ?) AS finished,
+                SUM(last_day > date(created_at / 1000, 'unixepoch')) AS back FROM users`, lessons);
+      const a = await first('SELECT COUNT(DISTINCT user_id) AS n FROM alerts');
+      return { started: u.started ?? 0, second: u.second ?? 0, finished: u.finished ?? 0, back: u.back ?? 0, alerts: a.n };
+    },
     async stats(now) {
       const u = await first('SELECT COUNT(*) AS users, SUM(blocked) AS blocked, SUM(created_at > ?) AS week FROM users', now - 7 * 864e5);
       const a = await first('SELECT COUNT(*) AS n FROM alerts');

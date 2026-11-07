@@ -32,6 +32,17 @@ export async function fetchMaya(fetchFn) {
   return { usd, depthZec: Number(d.assetDepth) / 1e8 };
 }
 
+/** Nodos públicos de carteras ligeras (lightwalletd/Zaino) en línea, según hosh.zec.rocks, el monitor de la comunidad. */
+export async function fetchNodes(fetchFn) {
+  const d = await getJson('https://hosh.zec.rocks/api/v0/zec.json', fetchFn);
+  const all = (d.servers || []).filter((s) => s.online && s.chain === 'main' && s.height > 0);
+  const top = Math.max(0, ...all.map((s) => s.height));
+  const list = all.filter((s) => !/\.onion$/.test(s.hostname))
+    .map((s) => ({ host: `${s.hostname}:${s.port}`, community: !!s.community, uptime: Number(s.uptime_30d) || 0, behind: top - s.height }))
+    .sort((a, b) => b.uptime - a.uptime);
+  return { list, tor: all.length - list.length, top };
+}
+
 /** Estado de la red Zcash: altura, ZEC emitidos y cuánto hay en cada fondo (transparente o blindado). */
 export async function fetchNetwork(fetchFn) {
   const d = await getJson('https://mainnet.zcashexplorer.app/api/v1/blockchain-info', fetchFn);

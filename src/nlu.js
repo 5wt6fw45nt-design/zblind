@@ -61,6 +61,8 @@ export function quickIntent(text) {
   // Comprar o conseguir ZEC: la lección 5 lo explica sin recomendar ningún sitio
   if (/\b(como|donde|de donde)\b.*\b(compro|comprar|consigo|conseguir|obtener|obtengo|adquirir)\b/.test(t)) return { intent: 'lesson', n: 4 };
   if (/\bno (lo )?entiendo\b|\bmas facil\b|\bexplica(me)? mejor\b|\bno me entero\b/.test(t)) return { intent: 'simpler' };
+  if (/\b(nodos?|lightwalletd|zaino|servidor(es)? (de|para) (la )?cartera|cambiar (de )?servidor)\b/.test(t)) return { intent: 'nodes' };
+  if (/\b(comunidad|videos?|youtube|blog|articulos?|podcast|zcast|zcash en espanol|mas recursos|donde aprender mas)\b/.test(t)) return { intent: 'community' };
   if (/\b(red zcash|estado de la red|blindad[oa]s? hay|cuanto (zec )?hay blindado|altura|bloques)\b/.test(t)) return { intent: 'network' };
   if (/\b(curso|aprender|aprende|leccion|lecciones|empezar desde cero|desde cero)\b/.test(t)) return { intent: 'learn', fromStart: /\b(empezar|empieza|desde cero|desde el principio)\b/.test(t) };
   if (/\b(guia de privacidad|privacidad)$/.test(t)) return { intent: 'privacy' };

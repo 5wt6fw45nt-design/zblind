@@ -29,7 +29,7 @@ export const BUTTONS = {
 };
 export const KEYBOARD = {
   reply_markup: {
-    keyboard: [['💰 Precio', '🎓 Aprende Zcash'], ['🔎 ¿Es esto una copia?', '🔔 Mis alertas'], ['⚙️ Ajustes', '📖 Cómo funciona']].map((r) => r.map((text) => ({ text }))),
+    keyboard: [['💰 Precio', '🎓 Aprende Zcash'], ['🛡️ Red Zcash', '🛰️ Nodos'], ['🔎 ¿Es esto una copia?']].map((r) => r.map((text) => ({ text }))),
     resize_keyboard: true,
     is_persistent: true,
   },
@@ -46,6 +46,20 @@ export function priceCard({ asset, rates, chg, country, maya, btcRatio }) {
   if (asset.id === 'ZEC' && btcRatio) lines.push(`₿ 1 ZEC = ${fmt(btcRatio, 6)} BTC`);
   if (asset.id === 'ZEC' && maya) lines.push(`⛓️ En Maya Protocol (descentralizado): ${fmt(maya.usd, 2)} dólares`);
   lines.push('', `<i>Fuentes: Coinbase${asset.id === 'ZEC' && maya ? ' y Maya Protocol' : ''}. ${DISCLAIMER}</i>`);
+  return lines.join('\n');
+}
+
+/** Nodos públicos en línea: los que más tiempo llevan funcionando primero. */
+export function nodesCard(n, ts, tz) {
+  const lines = ['🛰️ <b>Nodos públicos de Zcash</b>', '',
+    'Son los servidores a los que se conectan las carteras ligeras. Si el tuyo va lento o falla, puedes cambiarlo en los ajustes de tu cartera (Zingo e Ywallet lo permiten).', ''];
+  for (const s of n.list.slice(0, 12)) {
+    lines.push(`${s.behind > 10 ? '🟠' : '🟢'} <code>${esc(s.host)}</code> · ${fmt(s.uptime * 100, 0)} %${s.community ? ' · 👥' : ''}`);
+  }
+  if (n.list.length > 12) lines.push(`… y ${n.list.length - 12} más.`);
+  if (n.tor) lines.push('', `🧅 Además, ${n.tor} por Tor.`);
+  lines.push('', '👥 llevado por la comunidad · % en línea los últimos 30 días · 🟠 va por detrás de la red',
+    `<i>Datos de hosh.zec.rocks, el monitor de la comunidad. Actualizado: ${new Intl.DateTimeFormat('es-ES', { timeZone: tz, hour: '2-digit', minute: '2-digit' }).format(ts)}. Un nodo puede ver tu IP, nunca tu dinero.</i>`);
   return lines.join('\n');
 }
 
@@ -75,11 +89,27 @@ export function lessonButtons(i) {
   const row = [];
   if (i > 0) row.push({ text: '⬅️ Anterior', callback_data: `l:${i - 1}` });
   if (i < LESSONS.length - 1) row.push({ text: 'Siguiente ➡️', callback_data: `l:${i + 1}` });
-  return { reply_markup: { inline_keyboard: [row, [{ text: '📚 Índice del curso', callback_data: 'l:idx' }]].filter((r) => r.length) } };
+  // En la última: guía de privacidad y pedir opinión, que es lo que más nos ayuda a mejorar
+  const end = i === LESSONS.length - 1
+    ? [[{ text: '🛡️ Guía de privacidad', callback_data: 'x:privacy' }], [{ text: '🎥 Sigue con vídeos y artículos de la comunidad', callback_data: 'x:comunidad' }], [{ text: '💬 ¿Qué te ha parecido? Cuéntamelo', callback_data: 'set:feedback' }]]
+    : [];
+  return { reply_markup: { inline_keyboard: [row, ...end, [{ text: '❓ Tengo una duda', callback_data: 'x:duda' }, { text: '📚 Índice del curso', callback_data: 'l:idx' }]].filter((r) => r.length) } };
 }
+/** Contenido de la comunidad hispana de Zcash (Zcash en Español), para seguir aprendiendo fuera del bot. */
+export const community = () => ({
+  text: ['🎥 <b>Sigue aprendiendo con la comunidad</b>', '',
+    'Zcash en Español lleva años creando contenido en nuestro idioma: artículos, vídeos, un pódcast y un grupo donde preguntar.', '',
+    '📝 Blog con artículos y guías', '▶️ Canal de YouTube con vídeos y directos', '🎙️ Zcast, su pódcast', '💬 Grupo de Telegram para hablar con la comunidad', '',
+    '<i>Son de la comunidad, no míos: Zblind solo te lleva hasta ellos.</i>'].join('\n'),
+  extra: { reply_markup: { inline_keyboard: [
+    [{ text: '📝 Blog', url: 'https://zcashesp.com/blog/' }, { text: '▶️ YouTube', url: 'https://www.youtube.com/@zcashesp' }],
+    [{ text: '🎙️ Zcast', url: 'https://zcashesp.com/zcast/' }, { text: '💬 Grupo de Telegram', url: 'https://t.me/zcashespchat' }],
+  ] } },
+});
+
 export const lessonIndex = () => ({
   text: '📚 <b>Curso «Zcash desde cero»</b>\n\nToca una lección. Más abajo tienes la guía de privacidad y los datos de la red.',
-  extra: { reply_markup: { inline_keyboard: [...LESSONS.map((l, i) => [{ text: l.title, callback_data: `l:${i}` }]), [{ text: '🕵️ Extra: cómo detectar copias falsas', callback_data: 'cf:0' }], [{ text: '🛡️ Guía de privacidad', callback_data: 'x:privacy' }, { text: '🌐 Red Zcash', callback_data: 'x:network' }]] } },
+  extra: { reply_markup: { inline_keyboard: [...LESSONS.map((l, i) => [{ text: l.title, callback_data: `l:${i}` }]), [{ text: '🕵️ Extra: cómo detectar copias falsas', callback_data: 'cf:0' }], [{ text: '🎥 Vídeos y artículos de la comunidad', callback_data: 'x:comunidad' }], [{ text: '🛡️ Guía de privacidad', callback_data: 'x:privacy' }, { text: '🌐 Red Zcash', callback_data: 'x:network' }]] } },
 });
 export const privacy = () => PRIVACY_GUIDE.join('\n');
 
@@ -91,6 +121,9 @@ export function daily({ country, rates, chg, network, tip }) {
   out.push('', `<i>${DISCLAIMER} Lo apagas en ⚙️ Ajustes.</i>`);
   return out.join('\n');
 }
+
+/** Lo que sigue en el curso, para el resumen de la mañana. Vacío si ya lo acabó. */
+export const nextLesson = (seen) => (seen < LESSONS.length ? `\n\n🎓 Te toca: <b>${LESSONS[seen].title}</b> → /aprende` : '');
 
 export const TIPS = [
   'Comparte direcciones que empiecen por <code>u1</code>: son blindadas y unificadas.',
@@ -128,20 +161,25 @@ export const T = {
     '💰 <b>Precio</b>: cuánto vale hoy en tu moneda.',
     '🎓 <b>Aprende Zcash</b>: 10 lecciones cortas, de una en una.',
     '🔎 <b>¿Es esto una copia?</b>: me pegas un enlace o un mensaje raro y te digo si huele a estafa.',
+    '🛡️ <b>Red Zcash</b>: cuánto hay blindado. 🛰️ <b>Nodos</b>: los servidores públicos de la comunidad.',
     '🔔 <b>Alertas</b>: te aviso cuando el precio llegue a la cifra que me digas.',
     '❓ <b>Pregúntame</b> lo que quieras, por ejemplo «¿qué es una cartera?».',
     '☀️ Cada mañana a las 9:00 te mando un resumen. Lo apagas en ⚙️ Ajustes.',
+    '',
+    '☰ En el botón <b>Menú</b> tienes el resto: alertas, ajustes, gráfico, privacidad y tu opinión.',
     '',
     '🛡️ Soy @ZblindBot. Nunca te escribo primero ni te pido tu frase de recuperación ni dinero.',
     `<i>Gratis y de código abierto. ${DISCLAIMER}</i>`,
   ].join('\n'),
   firstSteps: '👉 <b>¿Por dónde empiezo?</b>\n\nSi Zcash te suena a chino, empieza por la primera lección: se lee en un minuto.',
+  askDoubt: '❓ Escríbeme tu duda tal como te salga, por ejemplo «¿y si pierdo el móvil?» o «¿qué es blindar?», y te la explico. Si una lección no se entiende, escribe «no lo entiendo» y te la cuento más fácil.',
   hello: (name) => `¡Hola${name ? `, ${esc(name)}` : ''}! 👋 ¿En qué te ayudo?`,
   askZone: '¿Desde qué país me lees? Así te doy el precio en tu moneda y el resumen a tu hora.',
   zoneSet: (c) => `Hecho: ${c.label}. Precios en ${c.currencyName} y resumen a tu hora. Lo cambias en ⚙️ Ajustes.`,
   noData: 'Ahora mismo no puedo consultar el precio. Prueba en un minuto.',
   noCurrency: (name) => `No tengo el precio en ${name}. Te lo doy en tu moneda, en dólares y en euros.`,
   noNetwork: 'Ahora mismo no puedo consultar la red Zcash. Prueba en un rato.',
+  noNodes: 'Ahora mismo no puedo consultar los nodos de la comunidad. Prueba en un rato o míralos en hosh.zec.rocks.',
   alertUsage: (c, ex) => `Escríbeme el precio en ${c.currencyName}, por ejemplo: «avísame si zcash baja de ${ex.down}» o «avísame si zcash pasa de ${ex.up}».`,
   alertSet: (id, asset, op, p, c) => `🔔 Hecho (alerta #${id}): te aviso cuando ${asset.name} ${op === '>' ? 'pase de' : 'baje de'} ${money(p, c)}.`,
   alertAlready: (asset, op, p, c) => `${asset.name} ya está ${op === '>' ? 'por encima' : 'por debajo'} de ${money(p, c)}. ¿Quieres poner otro precio?`,

@@ -24,10 +24,11 @@ export const OFFICIAL_SITES = {
   'leodex.io': 'LeoDex',
   'zcashexplorer.app': 'el explorador de bloques de Zcash',
   'zcashinfo.com': 'Zcash Info',
+  'zcashesp.com': 'la comunidad Zcash en Español (blog y vídeos en español)',
 };
 
 /** Nuestras propias cuentas, para el sello de autenticidad. */
-export const OFFICIAL_HANDLES = { zblindbot: 'Zblind, este bot', zashcash_bot: 'el antiguo Zash, que solo remite a @ZblindBot' };
+export const OFFICIAL_HANDLES = { zblindbot: 'Zblind, este bot', zashcash_bot: 'el antiguo Zash, que solo remite a @ZblindBot', zcashesp: 'el canal de la comunidad Zcash en Español', zcashespchat: 'el grupo de conversación de Zcash en Español' };
 
 // Palabras que usan las copias para parecer oficiales (en dominios y nombres de usuario)
 const BRANDS = ['zcash', 'zec', 'zodl', 'zashi', 'zingo', 'zblind', 'zechub', 'zfnd', 'electriccoin', 'keystone', 'vultisig', 'unstoppable', 'vizor', 'leodex'];

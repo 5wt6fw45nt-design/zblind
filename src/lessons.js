@@ -112,9 +112,15 @@ export const LESSONS = [
       '',
       '• Pregúntame lo que quieras, como lo dirías: «¿qué es una clave de visualización?», «¿Zcash es legal?».',
       '• Mira el precio en tu moneda y ponte alertas.',
-      '• «🛡️ Privacidad» tiene una guía rápida para usar Zcash en privado.',
+      '• Debajo tienes una guía rápida para usar Zcash en privado.',
+      '• ¿Qué te ha parecido el curso? Cuéntamelo con el botón de abajo: lo lee una persona y nos ayuda mucho a mejorarlo.',
       '',
-      'Para seguir aprendiendo, la comunidad tiene mucho contenido en <b>zechub.wiki</b> y en <b>z.cash</b>.',
+      '<b>Para seguir aprendiendo en español</b>, la comunidad Zcash en Español lleva años haciendo vídeos y artículos:',
+      '• Blog: <a href="https://zcashesp.com/blog/">zcashesp.com</a>',
+      '• Vídeos: <a href="https://www.youtube.com/@zcashesp">Zcash en Español</a> y <a href="https://www.youtube.com/@ZcastEsp">Zcast</a> en YouTube',
+      '• Su canal de Telegram: @zcashesp',
+      '',
+      'Y en inglés, <b>zechub.wiki</b> y <b>z.cash</b>.',
     ],
   },
 ];
@@ -138,7 +144,7 @@ export const PRIVACY_GUIDE = [
 export const FACTS = `Zcash (ZEC): criptomoneda lanzada en octubre de 2016, basada en el código de Bitcoin. Máximo 21 millones de ZEC. Prueba de trabajo (algoritmo Equihash), bloques cada unos 75 segundos. Halving aproximadamente cada 4 años (2020 y 2024).
 Direcciones transparentes (empiezan por t, públicas como en Bitcoin) y blindadas (Sapling empiezan por zs; unificadas por u1). Las transacciones blindadas ocultan remitente, destinatario e importe con pruebas de conocimiento cero (zk-SNARKs; Halo 2 en Orchard, sin configuración de confianza).
 Memo cifrado de hasta 512 bytes en pagos blindados. Claves de visualización (viewing keys) para enseñar movimientos a terceros sin dar acceso a los fondos.
-Carteras de autocustodia con soporte blindado: lista oficial en z.cash/ecosystem (por ejemplo Zodl, antes llamada Zashi, web zodl.com; Zingo!, Edge, Unstoppable, Vizor, Keystone). Estafas habituales: falsos soportes que escriben por privado, webs y apps que imitan carteras, «airdrops» y promesas de devolver el doble; nadie legítimo pide la frase de recuperación. Zblind tiene un botón «🔎 ¿Es esto una copia?» para comprobar enlaces, cuentas y mensajes. Frase de recuperación: nunca compartirla.
+Carteras de autocustodia con soporte blindado: lista oficial en z.cash/ecosystem (por ejemplo Zodl, antes llamada Zashi, web zodl.com; Zingo!, Edge, Unstoppable, Vizor, Keystone). Estafas habituales: falsos soportes que escriben por privado, webs y apps que imitan carteras, «airdrops» y promesas de devolver el doble; nadie legítimo pide la frase de recuperación. En español, la comunidad Zcash en Español publica artículos en zcashesp.com, vídeos en YouTube (Zcash en Español y Zcast) y tiene el canal de Telegram @zcashesp y el grupo @zcashespchat. Zblind tiene un botón «🔎 ¿Es esto una copia?» para comprobar enlaces, cuentas y mensajes. Frase de recuperación: nunca compartirla.
 Ironwood (NU6.3): nuevo fondo blindado activado el 28 de julio de 2026 (bloque 3.428.143) tras encontrarse en mayo de 2026 un fallo en el circuito de Orchard; reutiliza las acciones de Orchard y Halo 2 con su propio árbol y contabilidad, y permite verificar mejor el total de ZEC. Orchard queda restringido: los fondos pueden salir (turnstile) y se recomienda migrarlos a Ironwood con una cartera actualizada; la migración no es automática.
 Parte de la emisión financia el desarrollo y ayudas a la comunidad (Zcash Community Grants).
 UE: el reglamento contra el blanqueo (AMLR) prevé que desde julio de 2027 los proveedores de criptoactivos no gestionen criptomonedas con anonimato reforzado; la tenencia en carteras propias no se prohíbe.`;
